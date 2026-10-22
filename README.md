@@ -2,9 +2,9 @@
 
 *Small choices. An everyday story.*
 
-**[Play Online](https://enchanting-paletas-d0187b.netlify.app/)**
+**[Play Online](https://second-nature-one-day-less-waste.netlify.app/)**
 
-![SECOND NATURE comic cover](./OneDayLessWaste/public/art/cover.svg)
+![SECOND NATURE comic cover](./SECOND NATURE/public/art/cover.svg)
 
 ## The Game
 
@@ -24,7 +24,7 @@ Gameplay, pause, backpack, replay and report export use hand gestures. Camera im
 
 ## Comic Preview
 
-![Supermarket checkout scene](./OneDayLessWaste/public/art/S12.svg)
+![Supermarket checkout scene](./SECOND NATURE/public/art/S12.svg)
 
 *A checkout scene from the game's campus-life story.*
 
