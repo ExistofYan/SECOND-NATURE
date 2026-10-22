@@ -30,9 +30,9 @@ export const useStoryGame=defineStore('story',()=>{
   async function prepareScene(){
     if(!session.value||!currentScene.value)return;
     const token=++animationToken;transition.value='blackHold';
-    const sceneId=currentScene.value.id;const ready=await prepareArt(sceneId);if(token!==animationToken)return;
+    const sceneId=currentScene.value.id;const ready=await prepareArt(currentScene.value.artId ?? sceneId);if(token!==animationToken)return;
     displayedIndex.value=session.value.nextSceneIndex;degraded.value=!ready;const v=openVisit(session.value,ready?'ready':'degraded');v.assetStatus=ready?'ready':'degraded';if(!ready)event('degraded_asset',{sceneId});
-    for(const s of session.value.modelSnapshot.slice(session.value.nextSceneIndex+1,session.value.nextSceneIndex+3))void prepareArt(s.id);
+    for(const s of session.value.modelSnapshot.slice(session.value.nextSceneIndex+1,session.value.nextSceneIndex+3))void prepareArt(s.artId ?? s.id);
     transition.value='fadeIn';await delay(motion.value?80:450);if(token!==animationToken)return;
     transition.value='awaitingRelease';save();
   }
@@ -49,7 +49,7 @@ export const useStoryGame=defineStore('story',()=>{
     aftermath.value=selected.aftermath;transition.value='aftermath';const started=performance.now();await delay(motion.value?80:650);
     log(session.value,'transition_started',{from:sceneId},currentVisit);transition.value='fadeOut';await delay(motion.value?80:400);
     transition.value='blackHold';await delay(motion.value?40:350);
-    if(session.value.nextSceneIndex>=16){page.value=session.value.studyPhase as Page;transition.value='fadeIn';await delay(motion.value?80:450);transition.value='awaitingRelease';}
+    if(session.value.nextSceneIndex>=session.value.modelSnapshot.length){page.value=session.value.studyPhase as Page;transition.value='fadeIn';await delay(motion.value?80:450);transition.value='awaitingRelease';}
     else await prepareScene();
     const committed=session.value.visits.find(v=>v.visitId===currentVisit.visitId)!;committed.animationMs=performance.now()-started;log(session.value,'transition_completed',{from:sceneId,animationMs:committed.animationMs},committed);save();
   }

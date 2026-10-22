@@ -14,7 +14,7 @@ Main: How do university students understand waste prevention through a gesture-c
 
 Confirm the actual course brief, participant eligibility, consent procedure, recording/storage requirements and submission format. Plan a small exploratory sample only after that check. Try one pilot to assess legibility, game duration, hand fatigue, transition pacing and the probe wording. Record the app/model version; do not pool changed versions without explanation.
 
-Run on the actual webcam and display. Check the cover, scenes 2, 5, 12, 14 and 16 and all summary pages. Check the 1366×768 and 1280×720 targets, including the longest three-choice screen. Confirm the last option is reachable. Never shrink the whole browser merely to make it fit. Check the report ZIP can be downloaded and opened on that browser.
+Run on the actual webcam and display. Check the cover, the packing, travel, printing, checkout, spare-dinner and final-tidying scenes and all summary pages. Check the 1366×768 and 1280×720 targets, including the longest three-choice screen. Confirm the last option is reachable. Never shrink the whole browser merely to make it fit. Check the report ZIP can be downloaded and opened on that browser.
 
 ## Explain and consent
 
@@ -27,7 +27,7 @@ Use a participant code. Keep identity mappings separately. Researcher explains t
 1. Enter research mode with gestures. Select the code and decide whether to enable knowledge checks. Alternate A→B and B→A across participants if appropriate; record the assigned order.
 2. Obtain consent and complete practice: point, pinch, release, make a fresh selection.
 3. Complete the optional pre-check without corrections.
-4. Play the sixteen-scene story. Do not tell the participant which option to choose. Record directly observed issues and their own explanations separately. “No tracking” alone does not identify a failed pinch or intent.
+4. Play the seventeen-scene story. Do not tell the participant which option to choose. Record directly observed issues and their own explanations separately. “No tracking” alone does not identify a failed pinch or intent.
 5. Complete the optional post-check, then four 1–5 ratings. Normal navigation then opens the full summary.
 6. Inspect the summary and export the ZIP using the gesture control on page four. Keep genuine observations and interview records separately.
 7. Conduct the short interview below. If replay is offered, treat it as a separate child/free-play session, not a replacement for the first study session.

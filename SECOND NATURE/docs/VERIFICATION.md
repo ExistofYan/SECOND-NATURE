@@ -1,14 +1,14 @@
 # Verification record
 
-Implementation version: 1.0.0 / comic-day-1.0.0.
+Implementation version: 1.1.0 / comic-day-1.1.0.
 
-- Production build: passed (`vue-tsc --noEmit` and Vite build).
-- Automated tests: 15 passed across three test files.
-- The model test traverses 400 deterministic mixed sixteen-scene paths, plus explicit low/high-discard paths.
-- Tests cover conditional options, unique item IDs, pending paper, retained new bags, safe editable inventory, one-time commits, overlapping pauses, new-pinch guards, mouse non-activation, tracking recovery, atomic checkpoints, explicit/abrupt interruption timing and storage failure messaging.
-- Complete low/high and partial exports are extracted with Python ZIP support; CRC checks pass, and Python event replay exactly equals the frontend analysis.
-- Package script checks archive integrity, all sixteen built SVG scenes, the built index, launcher and hand model.
+- Automated tests: 33 passed across seven test files.
+- The model test traverses 400 deterministic mixed seventeen-scene routes, plus complete low/high-discard routes.
+- Low-discard route: no new single-use items, no discarded non-food, no discarded food, one dinner serving saved.
+- High-discard route: 22 new single-use items, 24 discarded non-food items including existing belongings, three food servings discarded, four edible servings still in inventory.
+- Coverage includes conditional options, stable item IDs, event replay, one-time commits, timing/recovery, gesture guards and storage failures.
+- New checks cover all three travel modes, travel separate from rubbish counts, fruit quantity, dinner source, exact prompts retained after tidying, all-choice reviews, feasible alternatives and partial reports.
+- A store check reaches the seventeenth scene before completing; a legacy sixteen-scene model still finishes using its own length.
+- Complete and partial ZIP exports pass Python archive checks. Python event replay equals frontend item analysis.
 
-The cover rendered in the browser during development. Camera access was refused in that browser session; no real-person gesture trial was completed. The browser automation connection then closed, so full visual checks at the two target desktop sizes could not be completed. Responsive rules and a development-only visual fixture are included for local checking, but are not evidence of a completed visual trial.
-
-Before study use, verify 1366×768 and 1280×720 on the actual screen, the selected system font, camera permission flow, real gesture reach/accuracy, arm comfort, transition pace, modal recovery, summary navigation and gesture-triggered browser downloads. No fictional participant data or evaluation results are included.
+The existing artwork is preserved. The travel choice reuses the front-door panel. Automated DOM startup checks do not verify real webcam gestures, arm comfort or visual fit on a classroom display. Before study use, check story reading, all options, summary pagination, camera permissions and browser downloads on the actual device. No participant findings are generated.

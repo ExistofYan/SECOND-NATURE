@@ -1,7 +1,7 @@
 {
   "name": "one-day-less-waste",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 5174 --configLoader runner",

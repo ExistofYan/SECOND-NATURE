@@ -22,10 +22,10 @@ const variants=computed(()=>{
 });
 </script>
 <template><div class="comic-frame" :class="{'has-aftermath':aftermath}">
-  <div class="panel-number">{{scene.id.replace('S','')}} <span>/ 16</span></div>
+  <div class="panel-number">{{session.modelSnapshot.findIndex(s=>s.id===scene.id)+1}} <span>/ {{session.modelSnapshot.length}}</span></div>
   <svg v-if="!degraded" class="scene-art" viewBox="0 0 1600 900" :preserveAspectRatio="compact?'xMidYMid meet':'xMidYMid slice'" role="img" :aria-label="scene.alt">
     <defs><g id="live-fruit" fill="white" stroke="black" stroke-width="4.2" stroke-linejoin="round"><path d="M24 0C-14 -17 -20 39 7 54Q23 67 35 54C64 26 56 -16 24 0Z"/><path fill="none" d="M24 0Q17 -17 30 -24M27 -13Q48 -24 48 -10Q37 -4 27 -13"/></g><g id="live-paper" fill="white" stroke="black" stroke-width="4.2"><rect width="77" height="98"/><path d="M14 25H62M14 41H54M14 57H62M14 74H43"/></g><g id="live-bag" fill="white" stroke="black" stroke-width="4.2" stroke-linejoin="round"><path d="M0 12H76L84 99Q43 108 -6 100Z"/><path fill="none" d="M18 14V-10Q37 -44 58 -10V14M12 63Q40 46 65 64"/></g></defs>
-    <image :href="artPath(scene.id)" width="1600" height="900"/>
+    <image :href="artPath(scene.artId ?? scene.id)" width="1600" height="900"/>
     <g v-if="scene.id==='S11'"><use v-for="n in fruitCount" :key="n" href="#live-fruit" :transform="`translate(${440+(n-1)*60} 533) scale(.85)`"/></g>
     <g v-if="scene.id==='S16'"><use v-for="n in paperCount" :key="'p'+n" href="#live-paper" :transform="`translate(${345+(n-1)*12} ${521-(n-1)*7}) scale(.8)`"/><use v-for="n in bagCount" :key="'b'+n" href="#live-bag" :transform="`translate(${715+(n-1)*70} 488) scale(.7)`"/></g>
   </svg>

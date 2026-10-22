@@ -1,6 +1,7 @@
+import { storyTextFor } from './storyNarrative';
 import { scenes, initialInventory } from '../../data/story/scenes';
 import type { Choice, Item, Session, StoryEvent, Timing, SceneVisit } from './types';
-export const VERSION = 'comic-day-1.0.0';
+export const VERSION = 'comic-day-1.1.0';
 const clone = <T>(x:T): T => JSON.parse(JSON.stringify(x));
 export const id = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 let timingSegmentId = id();
@@ -10,7 +11,7 @@ export function log(s:Session, type:string, payload:Record<string,unknown> = {},
   s.events.push(e); return e;
 }
 export function createSession(kind:Session['kind']='play', participantCode:string|null=null, parentSessionId:string|null=null, reducedMotion=false, collectProbes=false, probeSet:'A'|'B'='A'): Session {
-  const s:Session = {sessionId:id(),schemaVersion:1,modelVersion:VERSION,appVersion:'1.0.4',kind,participantCode,consentAt:kind==='research'?new Date().toISOString():null,startedAt:new Date().toISOString(),endedAt:null,status:'active',parentSessionId,modelSnapshot:clone(scenes),initialInventory:clone(initialInventory),items:clone(initialInventory),events:[],visits:[],nextSceneIndex:0,reducedMotion,ratings:{},probes:[],studyPhase:'practice',collectProbes,probeSet};
+  const s:Session = {sessionId:id(),schemaVersion:1,modelVersion:VERSION,appVersion:'1.1.0',kind,participantCode,consentAt:kind==='research'?new Date().toISOString():null,startedAt:new Date().toISOString(),endedAt:null,status:'active',parentSessionId,modelSnapshot:clone(scenes),initialInventory:clone(initialInventory),items:clone(initialInventory),events:[],visits:[],nextSceneIndex:0,reducedMotion,ratings:{},probes:[],studyPhase:'practice',collectProbes,probeSet};
   log(s,'session_started',{kind,parentSessionId,reducedMotion});
   if(s.consentAt) log(s,'consent_given',{participantCode});
   return s;
@@ -28,7 +29,7 @@ export function openVisit(s:Session, assetStatus:SceneVisit['assetStatus']='read
   const found=s.visits.find(v=>v.sceneId===scene.id && !v.selectedChoiceId); if(found) return found;
   const carrying=s.items.filter(i=>i.carried).map(i=>`${i.itemId}:${i.condition}`).sort().join('+')||'none';
   const variantId=`${scene.id}|carry=${carrying}|fruit=${s.items.filter(i=>/^fruit-[123]$/.test(i.itemId)).length}|paper=${s.items.filter(i=>i.type==='paper').length}|bags=${s.items.filter(i=>i.type==='bag'&&i.origin==='new').length}`;
-  const v:SceneVisit={visitId:id(),sceneId:scene.id,variantId,availableChoiceIds:availableChoices(s).map(c=>c.id),choicePositions:availableChoices(s).map(c=>c.id),readyAt:null,submittedAt:null,selectedChoiceId:null,decisionWallMs:null,decisionActiveMs:null,pausedMs:null,animationMs:0,assetStatus,timingInterrupted:false};
+  const v:SceneVisit={storyText:storyTextFor(s,scene),visitId:id(),sceneId:scene.id,variantId,availableChoiceIds:availableChoices(s).map(c=>c.id),choicePositions:availableChoices(s).map(c=>c.id),readyAt:null,submittedAt:null,selectedChoiceId:null,decisionWallMs:null,decisionActiveMs:null,pausedMs:null,animationMs:0,assetStatus,timingInterrupted:false};
   s.visits.push(v);return v;
 }
 export function markReady(s:Session,v:SceneVisit) { v.readyAt ??= new Date().toISOString(); log(s,'scene_ready',{assetStatus:v.assetStatus,availableChoiceIds:v.availableChoiceIds,variantId:v.variantId},v); }
