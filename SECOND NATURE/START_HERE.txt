@@ -1,0 +1,14 @@
+ONE DAY, LESS WASTE 1.0.4 - GESTURE PERFORMANCE UPDATE
+
+1. Extract into a new folder.
+2. Open the folder containing package.json in VS Code.
+3. Run npm ci, then npm run dev.
+4. Open the displayed localhost URL and allow the camera.
+5. Point with an open hand, pinch once, then release.
+
+READY BUILD: Run .\Start.cmd if Python is installed. No npm install is needed for this route.
+NETLIFY: Upload the entire dist folder, including mediapipe/hand-tracking-worker.js, all WASM, models, art and index.html.
+
+This release uses a background worker and drops excess frames. It preserves one-choice-per-pinch and transition input locks.
+26 automated tests, TypeScript and production build passed. Actual browser worker operation and real-hand smoothness still need a device trial.
+Read README.md for complete instructions and docs/PERFORMANCE.md for validation limits.
