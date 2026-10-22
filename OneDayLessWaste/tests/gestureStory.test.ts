@@ -1,0 +1,13 @@
+// @vitest-environment jsdom
+import {beforeEach,describe,it,expect,vi} from 'vitest';
+import {createApp,nextTick} from 'vue';
+import {createPinia,setActivePinia} from 'pinia';
+import PinchButton from '../src/components/PinchButton.vue';
+import {useGestureNavStore} from '../src/stores/gestureNavStore';
+import {GestureInterpreter} from '../src/domain/gestureInterpreter';
+import {interactionConfig} from '../src/config/interaction';
+describe('fresh-pinch input guard',()=>{
+ beforeEach(()=>{document.body.innerHTML='';setActivePinia(createPinia());});
+ it('consumes one edge, blocks transitions and never triggers on a mouse click',async()=>{const el=document.createElement('div');document.body.append(el);const hit=vi.fn();const app=createApp(PinchButton,{onPress:hit});app.use(createPinia());app.mount(el);const nav=useGestureNavStore();nav.running=true;nav.pointerActive=true;nav.awaitingRelease=false;nav.x=20;nav.y=20;const button=el.querySelector('button')!;vi.spyOn(button,'getBoundingClientRect').mockReturnValue({left:0,top:0,right:100,bottom:100} as DOMRect);Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>button});nav.frameId++;nav.pressId++;await nextTick();expect(hit).toHaveBeenCalledTimes(1);nav.frameId++;await nextTick();expect(hit).toHaveBeenCalledTimes(1);nav.inputLocked=true;nav.pressId++;await nextTick();expect(hit).toHaveBeenCalledTimes(1);nav.inputLocked=false;nav.rearm();nav.pressId++;await nextTick();expect(hit).toHaveBeenCalledTimes(1);nav.awaitingRelease=false;nav.pressId++;await nextTick();expect(hit).toHaveBeenCalledTimes(2);button.click();await nextTick();expect(hit).toHaveBeenCalledTimes(2);app.unmount();});
+ it('does not interpret a held pinch after tracking loss as a new choice',()=>{const g=new GestureInterpreter(interactionConfig);const hand=(closed:boolean)=>{const a=Array.from({length:21},()=>({x:.5,y:.5}));a[5]={x:.4,y:.5};a[17]={x:.6,y:.5};a[8]={x:.5,y:.3};a[4]={x:closed?.51:.7,y:.3};return a;};g.update(hand(false),0,{width:640,height:480});g.update(hand(false),110,{width:640,height:480});g.update(hand(true),200,{width:640,height:480});expect(g.update(hand(true),310,{width:640,height:480}).events).toContain('grab');g.update(null,800,{width:640,height:480});g.update(hand(true),900,{width:640,height:480});expect(g.update(hand(true),1100,{width:640,height:480}).events).not.toContain('grab');g.update(hand(false),1200,{width:640,height:480});g.update(hand(false),1400,{width:640,height:480});g.update(hand(true),1500,{width:640,height:480});expect(g.update(hand(true),1700,{width:640,height:480}).events).toContain('grab');});
+});
