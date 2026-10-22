@@ -4,7 +4,7 @@
 
 **[Play Online](https://second-nature-one-day-less-waste.netlify.app/)**
 
-![SECOND NATURE game interface](./docs/game-preview.png)
+![SECOND NATURE game interface](./SECOND%20NATURE/docs/game-preview.png)
 
 ## The Game
 
