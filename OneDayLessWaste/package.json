@@ -1,7 +1,7 @@
 {
   "name": "one-day-less-waste",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "dev": "node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 5174 --configLoader runner",
@@ -26,6 +26,7 @@
     "typescript": "~5.7.3",
     "vite": "6.4.5",
     "vitest": "^5.0.5",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "esbuild": "0.25.12"
   }
 }

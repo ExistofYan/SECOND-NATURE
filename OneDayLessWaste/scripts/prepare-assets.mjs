@@ -17,3 +17,5 @@ for (const asset of ['models/hand_landmarker.task', 'art/cover.svg', ...Array.fr
   if (!statSync(`public/${asset}`).size) throw new Error(`Missing or empty public/${asset}`);
 }
 console.log(`Checked model and 17 illustrations; synchronized local MediaPipe ${version} WASM resources.`);
+
+await import('./bundle-hand-worker.mjs');

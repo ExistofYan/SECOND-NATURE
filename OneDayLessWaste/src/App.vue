@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,ref,watch} from 'vue';
 import PinchButton from './components/PinchButton.vue';
+import GestureCursor from './components/GestureCursor.vue';
+import { handTrackingService } from './services/handTrackingService';
 import InkIcon from './components/story/InkIcon.vue';
 import ComicScene from './components/story/ComicScene.vue';
 import { useGestureNavStore } from './stores/gestureNavStore';
@@ -52,7 +54,7 @@ function onVisibility(){if(document.hidden)game.hidden();else {rearm();if(!nav.r
 function onPageHide(){game.hidden();}
 function onTrackingError(){game.pause('tracking_error');game.modal='pause';nav.error='Hand tracking stopped. Reload the page to restore tracking; the last committed choice is saved.';}
 onMounted(async()=>{nav.setVideo(video.value);await nav.enable();document.addEventListener('visibilitychange',onVisibility);window.addEventListener('pagehide',onPageHide);window.addEventListener('ecosort:tracking-error',onTrackingError);});
-onBeforeUnmount(()=>{if(lossTimer)clearTimeout(lossTimer);nav.disable();cameraService.stop();document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('pagehide',onPageHide);window.removeEventListener('ecosort:tracking-error',onTrackingError);});
+onBeforeUnmount(()=>{if(lossTimer)clearTimeout(lossTimer);nav.disable();handTrackingService.dispose();cameraService.stop();document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('pagehide',onPageHide);window.removeEventListener('ecosort:tracking-error',onTrackingError);});
 </script>
 <template>
   <div class="app-shell">
@@ -106,6 +108,6 @@ onBeforeUnmount(()=>{if(lossTimer)clearTimeout(lossTimer);nav.disable();cameraSe
 
     <div v-if="showModal" class="modal-backdrop" data-modal="true"><section class="modal-card" role="dialog" aria-modal="true" :aria-label="game.modal==='backpack'?'My backpack':'Paused'"><span class="eyebrow">A MOMENT TO BREATHE</span><template v-if="game.modal==='backpack'"><h1>What I brought.</h1><p>These are existing belongings, not new purchases.</p><div class="backpack-list"><div v-for="i in game.session?.items.filter(i=>i.reusable)" :key="i.itemId"><InkIcon :name="i.itemId"/><b>{{i.label}}</b><span>{{i.carried?'With me':'At home'}} · {{i.condition}}</span></div></div></template><template v-else-if="game.modal==='help'"><h1>Point. Pinch. Release.</h1><p>Move your open hand to aim. Pinch thumb and index finger once to choose. Open them before choosing again.</p><p>Rest your arm while reading. A tracking pause stops decision timing; point to “Continue” when ready.</p><p>The game records observed events, not guesses about your intentions.</p></template><template v-else><h1>Your day is paused.</h1><p>{{game.pauseReasons.includes('tracking_unavailable')?'No hand is currently being tracked. Rest or adjust your hand, then choose Continue.':'Take your time. Put your hand down and come back when you are ready.'}}</p><small>Decision timing is paused. Nothing has been chosen for you.</small></template><div class="modal-actions"><PinchButton @press="resume">Continue my day <InkIcon name="arrow"/></PinchButton><PinchButton v-if="game.modal!=='help'" variant="secondary" @press="game.modal='help'">How to use my hand</PinchButton><PinchButton variant="secondary" @press="game.event('researcher_help');rearm()">Record researcher help</PinchButton><PinchButton variant="secondary" @press="game.exit()">End and save for later</PinchButton><PinchButton variant="quiet" @press="game.abort()">Finish with a partial report</PinchButton></div></section></div>
     <div class="transition-curtain" :class="{black,visible:black||game.transition==='fadeIn'}" :style="{'--fade-time':game.motion?'80ms':'400ms'}" aria-live="polite"><div v-if="black"><template v-if="game.currentScene"><span class="chapter-caption" v-if="game.session && game.session.nextSceneIndex%4===0">CHAPTER {{game.currentScene.chapter}} · {{CHAPTERS[game.currentScene.chapter-1]}}</span><strong>{{game.currentScene.timeLabel}}</strong><p>{{game.currentScene.location}}</p><small v-if="game.transition==='blackHold'">Preparing the next scene</small></template><template v-else><strong>A little less.<br>A little longer.</strong><p>Let’s look back at your day.</p></template></div></div>
-    <div v-if="nav.pointerActive" class="gesture-cursor" :class="{pinching:nav.pinching,locked:nav.inputLocked||nav.awaitingRelease}" :style="{left:nav.x+'px',top:nav.y+'px'}" aria-hidden="true"><i/></div>
+    <GestureCursor/>
   </div>
 </template>

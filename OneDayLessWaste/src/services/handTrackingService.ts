@@ -1,144 +1,151 @@
-import {
-  FilesetResolver,
-  HandLandmarker,
-  type HandLandmarkerResult,
-} from "@mediapipe/tasks-vision";
-import { interactionConfig } from "../config/interaction";
-import type { Landmark } from "../domain/gestureInterpreter";
-import { handAssetUrls, loadHandAssets } from './handAssets';
+import { interactionConfig } from '../config/interaction';
+import type { Landmark } from '../domain/gestureInterpreter';
+import { handAssetUrls } from './handAssets';
+import type { WorkerReply, WorkerRequest } from './handWorkerProtocol';
 
-export type HandFrameCallback = (
-  landmarks: Landmark[] | null,
-  timestampMs: number,
-  frame: { width: number; height: number },
-) => void;
-
+export type HandFrameCallback = (landmarks: Landmark[] | null, timestampMs: number,
+  frame: { width: number; height: number }) => void;
 export class HandModelError extends Error {
-  constructor(message: string, readonly detail?: string) {
-    super(message);
-    this.name = "HandModelError";
-  }
+  constructor(message: string, readonly detail?: string) { super(message); this.name = 'HandModelError'; }
 }
 
-/**
- * MediaPipe HandLandmarker wrapper (spec §9.1).
- * - one shared video element, one detection loop, VIDEO running mode, numHands 1
- * - detectForVideo only on new frames, monotonically increasing timestamps
- * - GPU init failure falls back to CPU once; real errors surface, never fake landmarks
- */
-class HandTrackingService {
-  private landmarker: HandLandmarker | null = null;
-  private raf: number | null = null;
+/** One worker, one transferable frame in flight, and no inference on the UI thread. */
+export class HandTrackingService {
+  private worker: Worker | null = null;
+  private initialized = false;
+  private initPromise: Promise<void> | null = null;
+  private rejectInit: ((error: Error) => void) | null = null;
+  private initTimer: ReturnType<typeof setTimeout> | null = null;
   private video: HTMLVideoElement | null = null;
   private onFrame: HandFrameCallback | null = null;
-  private lastTs = 0;
-  private lastVideoTime = -1;
   private running = false;
-  private initPromise: Promise<void> | null = null;
+  private generation = 0;
+  private sequence = 0;
+  private inFlight: { id: number; generation: number } | null = null;
+  private capturing = false;
+  private raf: number | null = null;
+  private videoCallback: number | null = null;
+  private lastTs = -Infinity;
+  private lastVideoTime = -1;
+  private onVisibility = () => { if (document.hidden) this.generation++; };
+  get ready() { return this.initialized; }
 
-  get ready(): boolean {
-    return this.landmarker !== null;
-  }
-
-  async init(): Promise<void> {
-    if (this.landmarker) return;
+  init(): Promise<void> {
+    if (this.initialized) return Promise.resolve();
     if (this.initPromise) return this.initPromise;
-    this.initPromise = (async () => {
-      const urls = handAssetUrls(import.meta.env.BASE_URL, document.baseURI);
-      let vision: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>;
-      let model: Uint8Array;
-      try {
-        vision = await FilesetResolver.forVisionTasks(urls.wasm);
-        model = await loadHandAssets(urls.model, vision);
-      } catch (err) {
-        throw new HandModelError(
-          "Hand tracking resources could not load.",
-          String((err as Error).message ?? err),
-        );
-      }
-      const create = async (delegate: "GPU" | "CPU") =>
-        HandLandmarker.createFromOptions(vision, {
-          baseOptions: { modelAssetBuffer: model, delegate },
-          runningMode: "VIDEO",
-          numHands: 1,
-        });
-      try {
-        this.landmarker = await create("GPU");
-      } catch (gpuErr) {
-        try {
-          this.landmarker = await create("CPU");
-        } catch (cpuErr) {
-          this.initPromise = null;
-          throw new HandModelError(
-            "Hand tracking could not start with GPU or CPU. Try a current Chrome or Edge browser and reload.",
-            `GPU: ${String((gpuErr as Error).message ?? gpuErr)} | CPU: ${String((cpuErr as Error).message ?? cpuErr)}`,
-          );
-        }
-      }
-    })();
-    try {
-      await this.initPromise;
-    } catch (err) {
-      this.initPromise = null;
-      throw err;
+    if (typeof Worker === 'undefined' || typeof createImageBitmap !== 'function' || typeof OffscreenCanvas === 'undefined') {
+      return Promise.reject(new HandModelError('This browser cannot run background hand tracking. Use a current desktop Chrome or Edge browser.'));
     }
-  }
-
-  async start(video: HTMLVideoElement, onFrame: HandFrameCallback): Promise<void> {
-    await this.init();
-    if (!this.landmarker) throw new HandModelError("Hand model not initialised.");
-    this.stop();
-    this.lastVideoTime = -1;
-    this.video = video;
-    this.onFrame = onFrame;
-    this.running = true;
-
-    const loop = () => {
-      if (!this.running || !this.landmarker || !this.video) return;
-      const v = this.video;
-      if (v.readyState >= 2 && v.videoWidth > 0 && v.currentTime !== this.lastVideoTime) {
-        this.lastVideoTime = v.currentTime;
-        const ts = performance.now();
-        // detectForVideo is sync compute; pace it to the configured target fps
-        if (ts - this.lastTs >= 1000 / interactionConfig.handDetectFps - 1) {
-          this.lastTs = ts;
-          let result: HandLandmarkerResult | null = null;
-          try {
-            result = this.landmarker.detectForVideo(v, ts);
-          } catch (err) {
-            const failedFrame = this.onFrame;
-            this.stop();
-            failedFrame?.(null, ts, { width: v.videoWidth, height: v.videoHeight });
-            window.dispatchEvent(new CustomEvent("ecosort:tracking-error", { detail: String((err as Error).message ?? err) }));
-            return;
+    const urls = handAssetUrls(import.meta.env.BASE_URL, document.baseURI);
+    this.initPromise = new Promise<void>((resolve, reject) => {
+      this.rejectInit = reject;
+      try {
+        const workerUrl = new URL('mediapipe/hand-tracking-worker.js', new URL(import.meta.env.BASE_URL, document.baseURI));
+        const worker = new Worker(workerUrl, { name: 'ecosort-hand-tracker' });
+        this.worker = worker;
+        document.addEventListener('visibilitychange', this.onVisibility);
+        const fail = (message: string) => this.fail(new HandModelError('Hand tracking could not start.', message));
+        worker.onerror = event => { event.preventDefault(); fail(event.message || 'The background worker stopped.'); };
+        worker.onmessageerror = () => fail('The browser could not transfer a hand-tracking frame.');
+        worker.onmessage = ({ data }: MessageEvent<WorkerReply>) => {
+          if (worker !== this.worker) return;
+          if (data.type === 'ready') {
+            this.initialized = true;
+            if (this.initTimer) clearTimeout(this.initTimer);
+            this.initTimer = null; this.rejectInit = null;
+            resolve();
+          } else if (data.type === 'error') fail(data.message);
+          else if (this.inFlight?.id === data.id) {
+            const request = this.inFlight;
+            this.inFlight = null;
+            if (this.running && request.generation === this.generation && !document.hidden) {
+              this.onFrame?.(data.landmarks, data.timestamp, { width: data.width, height: data.height });
+            }
           }
-          const hand = result?.landmarks?.[0] ?? null;
-          const landmarks: Landmark[] | null =
-            hand && hand.length > 17 ? hand.map((p) => ({ x: p.x, y: p.y, z: p.z })) : null;
-          this.onFrame?.(landmarks, ts, { width: v.videoWidth, height: v.videoHeight });
-        }
-      }
-      this.raf = requestAnimationFrame(loop);
-    };
-    this.raf = requestAnimationFrame(loop);
+        };
+        this.initTimer = setTimeout(() => fail('Loading timed out. Check the model and WASM resources, then reload.'), 60000);
+        worker.postMessage({ type: 'init', wasmUrl: urls.wasm, modelUrl: urls.model } satisfies WorkerRequest);
+      } catch (error) { this.fail(error instanceof Error ? error : new Error(String(error))); }
+    });
+    const pending = this.initPromise;
+    return pending.catch(error => { if (this.initPromise === pending) this.initPromise = null; throw error; });
   }
 
-  stop(): void {
-    this.running = false;
-    if (this.raf !== null) {
-      cancelAnimationFrame(this.raf);
-      this.raf = null;
-    }
-    this.onFrame = null;
-    this.video = null;
-  }
-
-  dispose(): void {
+  private fail(error: Error) {
+    const active = this.running;
+    const reject = this.rejectInit;
+    this.rejectInit = null;
     this.stop();
-    this.landmarker?.close();
-    this.landmarker = null;
-    this.initPromise = null;
+    if (this.initTimer) clearTimeout(this.initTimer);
+    this.initTimer = null;
+    document.removeEventListener('visibilitychange', this.onVisibility);
+    this.worker?.terminate(); this.worker = null;
+    this.initialized = false; this.inFlight = null; this.initPromise = null;
+    reject?.(error);
+    if (active) window.dispatchEvent(new CustomEvent('ecosort:tracking-error', { detail: error.message }));
+  }
+
+  async start(video: HTMLVideoElement, onFrame: HandFrameCallback) {
+    await this.init();
+    this.stop();
+    this.video = video; this.onFrame = onFrame; this.running = true;
+    this.lastVideoTime = -1; this.lastTs = -Infinity;
+    this.schedule();
+  }
+
+  private schedule() {
+    if (!this.running || !this.video) return;
+    if (typeof this.video.requestVideoFrameCallback === 'function') {
+      this.videoCallback = this.video.requestVideoFrameCallback(() => {
+        this.videoCallback = null; void this.capture(); this.schedule();
+      });
+    } else {
+      this.raf = requestAnimationFrame(() => { this.raf = null; void this.capture(); this.schedule(); });
+    }
+  }
+
+  private async capture() {
+    const video = this.video;
+    if (!this.running || !this.worker || !video || document.hidden || this.capturing || this.inFlight ||
+      video.readyState < 2 || video.videoWidth === 0 || video.currentTime === this.lastVideoTime) return;
+    const timestamp = performance.now();
+    if (timestamp - this.lastTs < 1000 / interactionConfig.handDetectFps - 1) return;
+    const generation = this.generation;
+    this.capturing = true;
+    this.lastVideoTime = video.currentTime; this.lastTs = timestamp;
+    const width = Math.min(640, video.videoWidth);
+    const height = Math.max(1, Math.round(video.videoHeight * width / video.videoWidth));
+    let bitmap: ImageBitmap | null = null;
+    try {
+      bitmap = await createImageBitmap(video, { resizeWidth: width, resizeHeight: height, resizeQuality: 'low' });
+      if (!this.running || generation !== this.generation || !this.worker || document.hidden) { bitmap.close(); return; }
+      const id = ++this.sequence;
+      this.inFlight = { id, generation };
+      this.worker.postMessage({ type: 'frame', id, bitmap, timestamp, width, height } satisfies WorkerRequest, [bitmap]);
+    } catch (error) {
+      bitmap?.close();
+      if (generation === this.generation && this.running) this.fail(error instanceof Error ? error : new Error(String(error)));
+    } finally { this.capturing = false; }
+  }
+
+  stop() {
+    this.running = false; this.generation++;
+    if (this.raf !== null) cancelAnimationFrame(this.raf);
+    if (this.videoCallback !== null) this.video?.cancelVideoFrameCallback(this.videoCallback);
+    this.raf = null; this.videoCallback = null;
+    this.onFrame = null; this.video = null;
+    // Preserve the in-flight slot until its reply returns; stale results are ignored.
+  }
+
+  dispose() {
+    const reject = this.rejectInit;
+    this.rejectInit = null;
+    this.stop();
+    this.worker?.terminate(); this.worker = null;
+    if (this.initTimer) clearTimeout(this.initTimer);
+    this.initTimer = null; this.inFlight = null;
+    this.initialized = false; this.initPromise = null;
+    reject?.(new HandModelError('Hand tracking setup was cancelled.'));
   }
 }
-
 export const handTrackingService = new HandTrackingService();

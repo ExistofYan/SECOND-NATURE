@@ -38,7 +38,7 @@ class CameraService {
     }
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user", frameRate: { ideal: 30, max: 30 } },
         audio: false,
       });
       return this.stream;

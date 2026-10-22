@@ -1,34 +1,14 @@
-ONE DAY, LESS WASTE - GESTURE RESOURCE FIX 1.0.3
+ONE DAY, LESS WASTE 1.0.4 - GESTURE PERFORMANCE UPDATE
 
-READY-TO-RUN BUILD
-1. Extract the ZIP completely into a new folder.
-2. Open that folder in VS Code.
-3. In the terminal, run: .\Start.cmd
-   This serves the included dist folder using Python.
-4. Open http://127.0.0.1:5174/ and allow the camera.
-5. Show an open hand. Point, pinch thumb and index finger, then release.
+1. Extract into a new folder.
+2. Open the folder containing package.json in VS Code.
+3. Run npm ci, then npm run dev.
+4. Open the displayed localhost URL and allow the camera.
+5. Point with an open hand, pinch once, then release.
 
-DEVELOPMENT
-Use Node.js 22.22.2 or later supported by your dependencies.
-Run npm ci, then npm run dev.
-Run npm test and npm run build after making changes.
-Do not copy node_modules from an old project.
+READY BUILD: Run .\Start.cmd if Python is installed. No npm install is needed for this route.
+NETLIFY: Upload the entire dist folder, including mediapipe/hand-tracking-worker.js, all WASM, models, art and index.html.
 
-NETLIFY / STATIC HOSTING
-Upload the ENTIRE dist folder to your existing site.
-Its root must contain index.html AND art/, models/, mediapipe/, assets/, _headers.
-Uploading index.html alone cannot load the illustrations or hand tracker.
-After upload, hard-refresh the page with Ctrl+Shift+R.
-
-TROUBLESHOOTING
-- Camera access needs attention: allow this site to use your camera, then reload.
-- Hand tracking resources could not load: read the named file/HTTP error and
-  ensure the complete dist folder was uploaded. Camera permission cannot repair
-  a missing model or WASM file.
-- Never open index.html through file://. Use localhost or an HTTPS website.
-
-CHECKS
-Production build and 21 automated tests passed for this release.
-Browser validation successfully initialized the actual model on CPU.
-These checks do not replace a real-camera gesture trial.
-This ZIP includes source and a compiled build. No study participant data is included.
+This release uses a background worker and drops excess frames. It preserves one-choice-per-pinch and transition input locks.
+26 automated tests, TypeScript and production build passed. Actual browser worker operation and real-hand smoothness still need a device trial.
+Read README.md for complete instructions and docs/PERFORMANCE.md for validation limits.

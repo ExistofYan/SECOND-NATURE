@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import { defineStore } from "pinia";
 import { interactionConfig } from "../config/interaction";
 import { GestureInterpreter, type Landmark } from "../domain/gestureInterpreter";
@@ -66,7 +67,7 @@ export const useGestureNavStore = defineStore("gestureNav", {
       this.pointerActive = g.available;
       this.pinching = g.pinching;
       if (g.available && !g.pinching) this.awaitingRelease = false;
-      this.landmarks = lms;
+      this.landmarks = lms ? markRaw(lms) : null;
       this.events = g.events;
       this.timestamp = ts;
       this.lost = g.events.includes("lost") || (this.lost && !g.events.includes("recovered"));
