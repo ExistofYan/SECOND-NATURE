@@ -4,44 +4,26 @@
 
 **[Play Online](https://second-nature-one-day-less-waste.netlify.app/)**
 
-![SECOND NATURE comic cover](./SECOND NATURE/public/art/cover.svg)
+![SECOND NATURE game interface](./docs/game-preview.png)
 
 ## The Game
 
-Spend a day as a university student, making choices about food, packaging, reusable items and everyday waste across **16 comic scenes**.
+Spend a day as a university student, making everyday choices about food, packaging and reusable items across **16 comic scenes**.
 
 What you pack in the morning changes your options later. At the end of the day, see what you acquired, kept, shared or discarded. There is no answer countdown.
 
 ## How to Play
 
-1. Open **Play Online** in a current desktop Chrome or Edge browser.
-2. Allow camera access and complete the short practice.
+1. Open **[Play Online](https://second-nature-one-day-less-waste.netlify.app/)** in desktop Chrome or Edge.
+2. Allow camera access and complete the practice.
 3. **Point** at an option with an open hand.
 4. **Pinch** your thumb and index finger to choose.
-5. **Release**, then make a fresh pinch for your next choice.
+5. **Release** before making your next choice.
 
-Gameplay, pause, backpack, replay and report export use hand gestures. Camera images are processed locally and are not recorded.
-
-## Comic Preview
-
-![Supermarket checkout scene](./SECOND NATURE/public/art/S12.svg)
-
-*A checkout scene from the game's campus-life story.*
+Camera images are processed on your device and are not recorded.
 
 ## About the Project
 
-SECOND NATURE is an HCI coursework prototype exploring gesture interaction and waste prevention through everyday decisions.
+SECOND NATURE is an HCI coursework prototype exploring waste prevention through comic storytelling and gesture interaction.
 
-Built with **Vue 3, TypeScript, Pinia, Vite and MediaPipe**, it combines comic storytelling, connected choices and an item ledger. Results distinguish new single-use items, discarded materials, food waste and items kept in use.
-
-## Run Locally
-
-From the repository root:
-
-```bash
-cd OneDayLessWaste
-npm ci
-npm run dev
-```
-
-Open **http://127.0.0.1:5174/** and allow the camera.
+Built with **Vue 3, TypeScript, Pinia, Vite and MediaPipe**, it connects earlier decisions with later options and tracks individual items throughout the day. Results distinguish new single-use items, discarded materials, food waste and items kept in use.
