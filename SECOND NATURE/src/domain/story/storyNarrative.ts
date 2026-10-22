@@ -27,7 +27,7 @@ export function arrivalText(s: Session, scene: Scene): string {
 export function storyTextFor(s: Session, scene: Scene): string {
   let text = scene.storyText;
   // Snapshot text remains authoritative for saved sessions made before this rewrite.
-  if (s.modelVersion !== 'comic-day-1.1.0') return text;
+  if (!['comic-day-1.1.0', 'comic-day-1.1.1'].includes(s.modelVersion)) return text;
   if (scene.id === 'S03') text = 'Before class, you stop for a coffee. You can borrow a cafe cup and drink inside, or take a throwaway cup and lid. '
     + (s.items.some(i => i.itemId === 'cup' && i.carried) ? 'You also have the clean cup you packed at home.' : 'Your own cup is still at home.');
   if (scene.id === 'S10') text = 'After your snack, you study in the library until five. '
@@ -45,6 +45,15 @@ export function storyTextFor(s: Session, scene: Scene): string {
     const bags = s.items.filter(i => i.type === 'bag' && i.origin === 'new' && i.destination === 'pending').length;
     text = `You empty your school bag and tidy your desk. There are ${papers} paper sheets and ${bags} new bags to check, along with any other packaging. Your old notebook still has blank pages. Wash your reusable things. What will you keep or throw away?`;
   }
+  const questions: Record<string, string> = {
+    S03: 'Which cup will you use?', S04: 'How will you get a drink?',
+    S05: 'How will you read the notes?', S06: 'What will you put your lunch in?',
+    S08: 'How will you tell your friends?', S09: 'How will you have your snack?',
+    S10: 'How much fruit will you buy?', S11: 'How will you pack the fruit?',
+    S12: 'How will you carry it home?', S13: 'How will you get dinner ready?',
+    S15: 'What will you do with the shirt?',
+  };
+  if (s.modelVersion === 'comic-day-1.1.1' && questions[scene.id]) text += ' ' + questions[scene.id];
   return [arrivalText(s, scene), text].filter(Boolean).join(' ');
 }
 

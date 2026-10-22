@@ -17,4 +17,5 @@ export interface Session {
   parentSessionId: string | null; modelSnapshot: Scene[]; initialInventory: Item[]; items: Item[]; events: StoryEvent[];
   visits: SceneVisit[]; nextSceneIndex: number; reducedMotion: boolean; ratings: Record<string, number>; probes: Array<{phase: string; set: string; questionId: string; choiceId: string; correct: boolean}>;
   studyPhase: string; probeSet: 'A' | 'B'; collectProbes: boolean;
+  pendingTransition?: { visitId: string; sceneId: string; feedback: string };
 }

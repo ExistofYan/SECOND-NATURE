@@ -1,8 +1,8 @@
 # Verification record
 
-Implementation version: 1.1.0 / comic-day-1.1.0.
+Implementation version: 1.1.1 / comic-day-1.1.1.
 
-- Automated tests: 33 passed across seven test files.
+- Automated tests: 39 passed across eight test files.
 - The model test traverses 400 deterministic mixed seventeen-scene routes, plus complete low/high-discard routes.
 - Low-discard route: no new single-use items, no discarded non-food, no discarded food, one dinner serving saved.
 - High-discard route: 22 new single-use items, 24 discarded non-food items including existing belongings, three food servings discarded, four edible servings still in inventory.
@@ -12,3 +12,5 @@ Implementation version: 1.1.0 / comic-day-1.1.0.
 - Complete and partial ZIP exports pass Python archive checks. Python event replay equals frontend item analysis.
 
 The existing artwork is preserved. The travel choice reuses the front-door panel. Automated DOM startup checks do not verify real webcam gestures, arm comfort or visual fit on a classroom display. Before study use, check story reading, all options, summary pagination, camera permissions and browser downloads on the actual device. No participant findings are generated.
+
+Transition revision checks: the black reading panel stays after a two-minute wait under both fade settings; Continue is required; a held pinch and a mouse click cannot advance it; losing tracking while reading does not open a modal; reloading, explicit pausing and the final completed choice retain unread feedback; the next decision clock starts only after continuation and release. DOM checks verify label-only story choices and the gesture path through Continue. Production build, type checking and the production DOM startup smoke check passed.

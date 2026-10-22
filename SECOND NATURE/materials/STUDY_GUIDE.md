@@ -58,3 +58,7 @@ Recompute each exported JSON using `python analyze_story.py session.json`. Multi
 Use actual observation/interview records for iterative reflexive thematic analysis: familiarise, code, build candidate themes, review, define and write. Revisit stages as needed and acknowledge the researcher's developer/environmental perspective. Do not pre-fill themes or quotations. Combine logs with what participants said when interpreting slow scenes, errors and help.
 
 Without a control group, immediate changes cannot establish causation. One session cannot establish long-term waste reduction. A single input condition cannot show that gestures are better than a mouse. The available facilities, English wording, social expectations, researcher relationships and prototype artwork limit interpretation.
+
+## Transition reading in 1.1.1
+
+Each choice is followed by a black caption panel that waits for a fresh gesture on Continue. Tell participants they may rest their arm while reading. Check that they can find Continue, release before the next selection, and understand the single-label choices. Record reading pace and fatigue separately from active decision time.

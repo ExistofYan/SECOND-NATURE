@@ -1,4 +1,4 @@
-# Implementation notes — v1.1.0
+# Implementation notes — v1.1.1
 
 ## Model
 
@@ -41,3 +41,11 @@ See `STORY_REDESIGN.md` for the complete narrative and choice table. Model `comi
 `storyNarrative.ts` links travel mode, packing, fruit quantity and dinner source to subsequent scenes. It returns a consequence, a short lesson and an available alternative for every committed choice. Summary pagination exposes the complete review rather than three selected moments. The ZIP includes choice-review.csv. Exhaust is discussed qualitatively in a separate travel summary, with no fabricated emissions or combined environmental score.
 
 Scene counts, completion checks and timing chart dimensions derive from the saved model length rather than a fixed sixteen-scene assumption.
+
+## Gesture-confirmed transition reading (1.1.1)
+
+After each committed choice, the scene fades to a black reading panel. It shows the consequence and the next location/arrival text. This panel has no auto-advance timer. A fresh pinch on Continue loads and fades in the next scene, or opens the end-of-day flow after the final choice. Reading is excluded from decision and animation timing. Short fades only shorten the animation; they never skip the reading step.
+
+The existing gesture release guard is rearmed when the panel appears and again after continuing, so a held pinch cannot skip the panel or choose the next answer. Loss of tracking while reading allows an arm rest without opening a tracking modal. Explicit pauses and page hiding return to the same reading panel. The saved optional pendingTransition keeps unread feedback across refresh, including the final completed choice.
+
+Story choices display one large label each. Descriptions remain in model snapshots for reports and alternative-choice explanations, but are not rendered as small subtitles on the choice cards. New model comic-day-1.1.1 adds short explicit questions where needed.
