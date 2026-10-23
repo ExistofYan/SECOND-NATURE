@@ -3,6 +3,7 @@ import {createApp} from 'vue';
 import {createPinia} from 'pinia';
 import App from '../src/App.vue';
 import '../src/style.css';
+import '../src/story-theme.css';
 import {useGestureNavStore} from '../src/stores/gestureNavStore';
 import {useStoryGame} from '../src/stores/storyGameStore';
 import {scenes} from '../src/data/story/scenes';

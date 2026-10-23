@@ -16,6 +16,9 @@ for (const name of ['vision_wasm_internal', 'vision_wasm_module_internal', 'visi
 for (const asset of ['models/hand_landmarker.task', 'art/cover.svg', ...Array.from({length:16}, (_,i)=>`art/S${String(i+1).padStart(2,'0')}.svg`)]) {
   if (!statSync(`public/${asset}`).size) throw new Error(`Missing or empty public/${asset}`);
 }
-console.log(`Checked model and 17 illustrations; synchronized local MediaPipe ${version} WASM resources.`);
+const narrative=JSON.parse(readFileSync('public/art/narrative-manifest.json','utf8'));
+if(narrative.length!==21)throw Error('Expected all 21 narrative illustrations, including travel variants.');
+for(const entry of narrative)if(!statSync(`public/${entry.path}`).size)throw Error(`Missing narrative illustration: ${entry.path}`);
+console.log(`Checked model and ${narrative.length} narrative illustrations; synchronized local MediaPipe ${version} WASM resources.`);
 
 await import('./bundle-hand-worker.mjs');

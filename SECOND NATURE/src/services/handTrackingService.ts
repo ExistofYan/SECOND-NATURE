@@ -1,10 +1,11 @@
 import { interactionConfig } from '../config/interaction';
 import type { Landmark } from '../domain/gestureInterpreter';
+import type {DetectedHand} from '../domain/multiHandInterpreter';
 import { handAssetUrls } from './handAssets';
 import type { WorkerReply, WorkerRequest } from './handWorkerProtocol';
 
 export type HandFrameCallback = (landmarks: Landmark[] | null, timestampMs: number,
-  frame: { width: number; height: number }) => void;
+  frame: { width: number; height: number }, hands?:DetectedHand[]) => void;
 export class HandModelError extends Error {
   constructor(message: string, readonly detail?: string) { super(message); this.name = 'HandModelError'; }
 }
@@ -59,7 +60,7 @@ export class HandTrackingService {
             const request = this.inFlight;
             this.inFlight = null;
             if (this.running && request.generation === this.generation && !document.hidden) {
-              this.onFrame?.(data.landmarks, data.timestamp, { width: data.width, height: data.height });
+              this.onFrame?.(data.landmarks, data.timestamp, { width: data.width, height: data.height }, data.hands);
             }
           }
         };

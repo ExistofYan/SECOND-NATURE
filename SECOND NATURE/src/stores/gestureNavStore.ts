@@ -1,14 +1,15 @@
 import { markRaw } from 'vue';
 import { defineStore } from "pinia";
 import { interactionConfig } from "../config/interaction";
-import { GestureInterpreter, type Landmark } from "../domain/gestureInterpreter";
+import { type Landmark } from "../domain/gestureInterpreter";
+import {MultiHandInterpreter,type DetectedHand} from '../domain/multiHandInterpreter';
 import { toStagePoint } from "../domain/coordinateMapper";
 import { cameraService } from "../services/cameraService";
 import { handTrackingService } from "../services/handTrackingService";
 import { useDeviceStore } from "./deviceStore";
 
 let video: HTMLVideoElement | null = null;
-let interpreter: GestureInterpreter | null = null;
+let interpreter: MultiHandInterpreter | null = null;
 let startup: Promise<void> | null = null;
 let generation = 0;
 
@@ -48,8 +49,8 @@ export const useGestureNavStore = defineStore("gestureNav", {
         video.srcObject = cameraService.getStream();
         await video.play();
         if (token !== generation) return;
-        interpreter = new GestureInterpreter(interactionConfig);
-        await handTrackingService.start(video, (lms, ts, size) => this.onFrame(lms, ts, size));
+        interpreter = new MultiHandInterpreter(interactionConfig);
+        await handTrackingService.start(video, (lms, ts, size, hands) => this.onFrame(lms, ts, size, hands));
         if (token !== generation) { handTrackingService.stop(); return; }
         this.running = true;
       })().catch((err: unknown) => {
@@ -57,16 +58,16 @@ export const useGestureNavStore = defineStore("gestureNav", {
       }).finally(() => { this.loading = false; startup = null; });
       return startup;
     },
-    onFrame(lms: Landmark[] | null, ts: number, size: { width: number; height: number }) {
+    onFrame(lms: Landmark[] | null, ts: number, size: { width: number; height: number }, hands?:DetectedHand[]) {
       if (!interpreter) return;
-      const g = interpreter.update(lms, ts, size);
+      const g = interpreter.update(hands??(lms?[{landmarks:lms}]:[]), ts, size);
       const p = toStagePoint(g.x, g.y,
         { width: window.innerWidth, height: window.innerHeight },
         { regionMin: interactionConfig.pointerRegionMin, regionMax: interactionConfig.pointerRegionMax, stageInsetPx: 8 });
       this.x = p.x; this.y = p.y;
       this.pointerActive = g.available;
       this.pinching = g.pinching;
-      if (g.available && !g.pinching) this.awaitingRelease = false;
+      if (g.available && g.openConfirmed) this.awaitingRelease = false;
       this.landmarks = lms ? markRaw(lms) : null;
       this.events = g.events;
       this.timestamp = ts;

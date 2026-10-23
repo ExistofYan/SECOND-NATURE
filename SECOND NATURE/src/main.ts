@@ -3,3 +3,5 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import './style.css';
 createApp(App).use(createPinia()).mount('#app');
+
+import './story-theme.css';

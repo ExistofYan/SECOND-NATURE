@@ -1,7 +1,7 @@
 {
   "name": "one-day-less-waste",
   "private": true,
-  "version": "1.1.1",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 5174 --configLoader runner",
@@ -9,6 +9,7 @@
     "preview": "vite preview --host 127.0.0.1 --port 4174",
     "test": "vitest run --configLoader runner",
     "art": "node scripts/draw-scenes.mjs",
+    "art:extract": "node scripts/extract-narrative-art.mjs",
     "prepare:assets": "node scripts/prepare-assets.mjs"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "pngjs": "5.0.0",
     "@types/qrcode": "^1.5.5",
     "@vitejs/plugin-vue": "^5.2.1",
     "jsdom": "^30.1.3",

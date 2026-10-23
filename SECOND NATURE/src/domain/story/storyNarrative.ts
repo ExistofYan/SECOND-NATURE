@@ -27,7 +27,7 @@ export function arrivalText(s: Session, scene: Scene): string {
 export function storyTextFor(s: Session, scene: Scene): string {
   let text = scene.storyText;
   // Snapshot text remains authoritative for saved sessions made before this rewrite.
-  if (!['comic-day-1.1.0', 'comic-day-1.1.1'].includes(s.modelVersion)) return text;
+  if (!['comic-day-1.1.0', 'comic-day-1.1.1', 'comic-day-1.2.0'].includes(s.modelVersion)) return text;
   if (scene.id === 'S03') text = 'Before class, you stop for a coffee. You can borrow a cafe cup and drink inside, or take a throwaway cup and lid. '
     + (s.items.some(i => i.itemId === 'cup' && i.carried) ? 'You also have the clean cup you packed at home.' : 'Your own cup is still at home.');
   if (scene.id === 'S10') text = 'After your snack, you study in the library until five. '
@@ -53,7 +53,7 @@ export function storyTextFor(s: Session, scene: Scene): string {
     S12: 'How will you carry it home?', S13: 'How will you get dinner ready?',
     S15: 'What will you do with the shirt?',
   };
-  if (s.modelVersion === 'comic-day-1.1.1' && questions[scene.id]) text += ' ' + questions[scene.id];
+  if (['comic-day-1.1.1','comic-day-1.2.0'].includes(s.modelVersion) && questions[scene.id]) text += ' ' + questions[scene.id];
   return [arrivalText(s, scene), text].filter(Boolean).join(' ');
 }
 

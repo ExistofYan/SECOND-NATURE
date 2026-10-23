@@ -59,3 +59,8 @@
 玩家可以放下手休息，准备好后重新指向并捏合。选择选项、确认 Continue、进入下一幕分别需要新的捏合动作，避免一次手势连跳。刷新或暂停后，未确认的字幕仍然保留。
 
 每个选项只显示一段大字，去掉下面的小字说明。必要条件放在故事问题里，行动和直接后果放进选项本身，例如 Take one serving 和 Take two servings; throw one away。
+
+
+## Application release 1.2.0: narrative artwork
+
+The current app replaces the displayed monochrome backgrounds with reference-based, flat hand-drawn PNG illustrations in muted colours. There are 21 distinct images: the cover, sixteen everyday scenes, the travel overview and three travel variants. S02T now uses its own departure overview and the chosen bike, bus or car image, rather than reusing the front-door art. Earlier statements about preserving the displayed monochrome artwork describe the previous release. The seventeen-scene story model and item rules are unchanged.

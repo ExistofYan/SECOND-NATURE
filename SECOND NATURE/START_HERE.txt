@@ -1,8 +1,9 @@
-ONE DAY, LESS WASTE 1.1.1 - READ, THEN CONTINUE
+SECOND NATURE 1.2.0 - NARRATIVE ART AND TWO-HAND TRACKING
 
 Open the folder containing package.json. Run npm ci if needed, then npm run dev.
 Open the displayed localhost URL and allow the camera.
-Point with an open hand, pinch once to choose, then release.
+Point with either open hand, pinch once to choose, then release.
+There is one pointer. Keep the other hand relaxed; open your fingers after a tracking loss.
 After each choice, the black story caption waits for you. Read it, then point and pinch Continue.
 Choice cards show a single large label. There is no reading or answer countdown.
 
@@ -10,5 +11,5 @@ READY BUILD: Run .\Start.cmd if Python is installed.
 NETLIFY UPDATE: Upload the complete dist folder in your existing project Deploys page.
 Include index.html and all assets, mediapipe, models and art subfolders.
 
-39 automated tests, TypeScript, production build and DOM startup checks passed.
+51 automated tests, TypeScript, production build and DOM startup checks passed.
 Actual camera tracking and gesture comfort still need checking on the intended device.

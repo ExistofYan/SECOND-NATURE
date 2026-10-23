@@ -53,4 +53,10 @@ describe('background inference backpressure',()=>{
   await start(video());await tick();service.stop();const close=vi.fn();finish({close} as unknown as ImageBitmap);
   await Promise.resolve();await Promise.resolve();expect(close).toHaveBeenCalledOnce();expect(frames()).toHaveLength(0);
  });
+ it('forwards both detected hands to the stable hand selector',async()=>{
+  const v=video(),receive=await start(v);await tick();const request=frames()[0];
+  const hands=[{landmarks:[{x:.2,y:.3}],handedness:'Left'},{landmarks:[{x:.7,y:.3}],handedness:'Right'}];
+  harness.workers[0].reply({type:'result',id:request.id,timestamp:request.timestamp,landmarks:hands[0].landmarks,hands,width:request.width,height:request.height,inferenceMs:30});
+  expect(receive).toHaveBeenCalledWith(hands[0].landmarks,request.timestamp,{width:request.width,height:request.height},hands);
+ });
 });

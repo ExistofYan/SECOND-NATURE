@@ -1,4 +1,5 @@
-# Implementation notes — v1.1.1
+# Implementation notes - v1.2.0
+
 
 ## Model
 
@@ -18,11 +19,19 @@ No camera frames or keypoints enter session events. There is one camera stream a
 
 ## Artwork and typography
 
-`scripts/draw-scenes.mjs` creates sixteen original 1600×900 monochrome vector illustrations and a cover. The same student, shirt, bag and prop functions recur. The original sixteen panels are preserved, including both cashier and shopper at the supermarket. The added travel decision takes place at the front door and explicitly reuses S02 through artId; displayed scene numbers run from 1 to 17. Live SVG layers show the actual fruit quantity and the actual papers/bags from the ledger. Aftermath text is separate from art; options, long text and statistics are never baked into an image.
+The current release uses 21 distinct PNG illustrations in `public/art/narrative`: a cover, sixteen everyday locations, a three-way departure overview and separate bicycle, bus and car journeys. The same striped-shirt student and backpack recur across breakfast, campus, shopping and evening scenes. These are flat hand-drawn scenes with muted slate, cream and mustard colours, following the supplied visual reference. The older monochrome SVGs remain available as legacy assets; they are no longer the displayed scene backgrounds.
 
-`public/art/manifest.json` records scene ID, file, version, source and alternate text. Runtime overlays live in `ComicScene.vue`. System handwriting fonts are used for headings (Segoe Print, Comic Sans MS, Chalkboard SE), with clear system sans-serif for reading and choices. Font appearance therefore depends on the study device; check it before the pilot. All strokes, UI and charts use black and white, without coloured correctness cues. Existing MediaPipe model/WASM files are carried over from the original project.
+`public/art/narrative-manifest.json` lists the current illustrations. `scripts/extract-narrative-art.mjs` crops the five original generated storyboard sheets without recolouring them. Normal development and build commands use the checked-in PNGs and do not require those cached source sheets. `ComicScene.vue` selects the departure overview before a travel choice and the chosen journey afterwards; the black reading panel also shows that journey. The departure loader prepares all four travel images before the decision is ready.
+
+`story-theme.css` supplies matching muted surfaces and a desktop layout with the illustration beside large story text and label-only choice cards. Headings use system handwriting fonts, so their appearance still depends on the device. Inventory badges are derived from the ledger; the background illustrations are illustrative and do not dynamically redraw every carried object or portion. The ledger and reports remain authoritative for quantities.
 
 The art preloader caches the current and next two scenes. A five-second asset wait falls back to an explicit textual description and records `degraded_asset` and the visit's asset status. It does not claim a successful full-art trial. Short fades respect the initial reduced-motion preference; the cover gesture toggle changes the next session condition, which is saved with that session.
+
+## Two-hand input in 1.2.0
+
+One background detector now returns up to two hands. `MultiHandInterpreter` keeps a separate pinch history for each hand, matches identities independently of detector array order, and publishes one controlling pointer. A fresh pinch on the other visible hand can take control while the first hand is open. Two simultaneous pinches generate one press, and a held pinch never repeats.
+
+A brief controlling-hand dropout keeps ownership during the 300 ms grace period. After a longer loss, takeover requires a stable open hand before a new pinch. Invalid or undersized palms are treated as unavailable, allowing a usable hand to take over. Losing the only pinched hand forwards one cancellation event. The pointer holds its last open-hand aim during pinch confirmation so fingertip motion does not move a click away from its intended target.
 
 ## Research and exports
 

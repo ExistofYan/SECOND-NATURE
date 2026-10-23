@@ -58,7 +58,7 @@ export class GestureInterpreter {
   private handPresent = false;
   private lostEmitted = false;
   /** after a "lost", re-open must stabilise before any new grab */
-  private awaitingOpenConfirm = false;
+  private awaitingOpenConfirm = true;
   private lastPresentMs: number | null = null;
   private smoothed: { x: number; y: number } | null = null;
 
@@ -70,7 +70,7 @@ export class GestureInterpreter {
     this.candidateStartMs = 0;
     this.handPresent = false;
     this.lostEmitted = false;
-    this.awaitingOpenConfirm = false;
+    this.awaitingOpenConfirm = true;
     this.lastPresentMs = null;
     this.smoothed = null;
   }
@@ -97,13 +97,14 @@ export class GestureInterpreter {
         this.candidate = null;
         this.awaitingOpenConfirm = true;
       }
-      return { available: false, pinching: this.pinching, x: this.smoothed?.x ?? 0.5, y: this.smoothed?.y ?? 0.5, events };
+      return { available: false, pinching: this.pinching, openConfirmed:false, x: this.smoothed?.x ?? 0.5, y: this.smoothed?.y ?? 0.5, events };
     }
 
     const wasLost = !this.handPresent;
     this.handPresent = true;
     const gap = this.lastPresentMs === null ? 0 : timestampMs - this.lastPresentMs;
     this.lastPresentMs = timestampMs;
+    if(gap>this.cfg.trackingLossGraceMs){this.candidate=null;this.pinching=false;this.awaitingOpenConfirm=true;}
 
     // re-appeared after a real dropout: reset filter so the pointer doesn't fly across
     if (wasLost && gap > this.cfg.trackingLossGraceMs / 2) {
@@ -151,7 +152,7 @@ export class GestureInterpreter {
     const rawY = valid[TIP_INDEX].y;
     if (this.smoothed === null) {
       this.smoothed = { x: rawX, y: rawY };
-    } else if (!(wasPinching && this.candidate === "open")) {
+    } else if (this.candidate !== 'pinch' && !(wasPinching && this.candidate === "open")) {
       // Opening thumb/index changes the fingertip position. Hold the aim while
       // confirming release, so an intended drop cannot jump out of its target.
       const dt = Math.max(0, gap);
@@ -165,6 +166,7 @@ export class GestureInterpreter {
     return {
       available: true,
       pinching: this.pinching,
+      openConfirmed: !this.awaitingOpenConfirm && this.candidate === 'open' && !this.pinching,
       x: this.smoothed.x,
       y: this.smoothed.y,
       events,

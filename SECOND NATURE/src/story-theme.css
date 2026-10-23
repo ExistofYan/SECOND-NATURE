@@ -1,0 +1,69 @@
+/* Quiet, flat storybook surfaces matched to the user's 2D narrative-game reference. */
+:root{--ink:#29313d;--paper:#f4f1e9;--slate:#53677a;--sky:#d9e1e8;--gold:#d2b876;--sage:#b8c4b6;color:var(--ink);background:#e5e7e8}
+body{background:#e5e7e8;color:var(--ink)}
+.app-shell{background:var(--paper);isolation:isolate}
+.masthead{border-color:#69747f}
+.brand-icon{background:var(--gold);border-color:var(--ink)}
+.wordmark b,.eyebrow,.mini-label,.scene-count>b{color:#46596a}
+.chapter-track i{background:#7b8891}.chapter-track .current{background:var(--gold);color:var(--ink);border-color:var(--ink)}
+.pinch-button{color:var(--ink);border-color:var(--ink);background:#f9f7ef;box-shadow:3px 3px 0 #8c98a3;border-radius:7px 11px 6px 9px}
+.button-primary{background:#43576b;color:#fffdf5;box-shadow:3px 3px 0 #d1b777,4px 4px 0 var(--ink)}
+.button-quiet{background:transparent;color:#41566a;box-shadow:none}
+.pinch-button.gesture-hover:not(:disabled){transform:none;background:#d6c18b;color:#242e3a;border-color:#354757;outline:2px solid #fffaf0;box-shadow:4px 4px 0 #53677a}
+.button-primary.gesture-hover:not(:disabled){background:#d6c18b;color:#242e3a;outline:2px solid #fffaf0}
+.button-quiet.gesture-hover:not(:disabled){background:#dce3e7;box-shadow:none;outline:none}
+.pinch-button:disabled{opacity:.45}
+.cover-copy h1{color:#35495b}.cover-copy h1 span:after{border-color:var(--gold);border-width:6px}
+.cover-art{border-radius:12px;overflow:hidden;background:#d9e0e3}
+.cover-art img{width:100%;aspect-ratio:16/9;object-fit:cover;border:2px solid var(--ink);border-radius:9px 14px 8px 11px}
+.cover-stamp{background:#eee3c9;border-color:#495762;color:#35495b;top:2%;right:16px;font-size:17px;padding:17px}
+.cover-caption{color:#35495b;padding:18px 5px;margin-bottom:0;background:var(--paper)}
+.cover-caption span{border-color:#6c7d87;background:#eee3c9}
+.hand-note{color:#455765}
+.story-page .scene-heading h1{color:#344b5f}
+.comic-frame{border-color:var(--ink);background:#dce2e4;box-shadow:3px 3px 0 #8e9ca5}
+.scene-art{object-fit:contain;background:#cdd6dc}
+.panel-number,.scene-scribble{background:#f4f1e9ed;border:1px solid #606f7b;border-radius:4px 7px 4px 5px;padding:4px 9px;color:var(--ink)}
+.panel-number{font-size:23px;left:13px;top:12px}.scene-scribble{font-size:14px;right:13px;top:14px}
+.prop-strip{background:#f5f1e8f2;color:#344b5f;border-color:#687783;box-shadow:2px 2px 0 #8d9aa3;bottom:12px;right:12px;gap:10px;max-width:92%}
+.prop-strip span{font-size:12px}
+.story-text{color:#303c47}
+.choice-letter{background:#e3e8e7;border-color:#687984;color:#344b5f}
+.choices>.pinch-button:nth-child(3n+2){background:#edf0e6}.choices>.pinch-button:nth-child(3n){background:#eee5d6}
+.choices>.pinch-button.gesture-hover:not(:disabled){background:#d6c18b}
+.choice-corner{color:#6c7e8a}
+.status-bar{border-color:#8b969d;color:#4b5d6b;background:var(--paper)}
+.status-dot{border-color:#5d7683}.status-dot.filled{background:#698475}
+.gesture-cursor{border:3px solid #344c5d;background:#f8f4e8;box-shadow:0 0 0 3px #f8f4e8b3}.gesture-cursor i{background:#4d6c7f}
+.gesture-cursor.pinching{background:#cfb269}.gesture-cursor.pinching i{background:#29313d}
+.transition-curtain{background:#000;color:#f4f1e9}
+.transition-panel .chapter-caption{color:#d9c58e}.transition-panel .transition-feedback{color:#f4f1e9}
+.transition-panel .transition-continue{background:#e2cf9b;color:#253342;border-color:#e2cf9b;box-shadow:3px 3px 0 #61758a}
+.transition-panel .transition-continue.gesture-hover:not(:disabled){background:#f4f1e9;color:#253342;outline:2px solid #64798a;box-shadow:4px 4px 0 #d2b876}
+.transition-panel .transition-art{width:min(430px,85%);max-height:210px;object-fit:contain;border:2px solid #b9c6cf;border-radius:6px;margin-bottom:20px;flex-shrink:0}
+.practice-target{border-color:#697b89;background:#e4e9e9;color:#354d60}.practice-dots{color:#bd9f59}
+.consent-box{background:#e7eceb;border-color:#637681}.code-selector strong{color:#3b5369}
+.rating-options>.pinch-button:nth-child(odd){background:#e3e9e6}.rating-options>.pinch-button:nth-child(even){background:#eee4cf}
+.modal-backdrop{background:#303b47b5}.modal-card{background:#f4f1e9;border-color:#394e60;box-shadow:8px 8px 0 #23324280}
+.modal-card h1{color:#3a5063}.backpack-list>div{border-color:#b5bfc5}
+.setup-notice,.save-notice{background:#f2e8cf;color:#34495a;border-color:#697b87;box-shadow:5px 5px 0 #8b9ba7}
+.summary-page h1{color:#354d60}.summary-count{color:#5c7282}
+.metric-grid article{background:#e1e8e7;border-color:#627785;box-shadow:3px 3px 0 #9cabb1}.metric-grid article:nth-child(even){background:#ece2cc}
+.metric-grid strong{color:#354f63}.type-table th,.comparison-table th{border-color:#566d7b;background:#e1e7e8;color:#344c5e}
+.type-table td,.comparison-table td{border-color:#bcc4c5}.type-table tbody tr:nth-child(even),.comparison-table tbody tr:nth-child(even){background:#e9ece7}
+.page-dots i{border-color:#587180}.page-dots i.active{background:#b59b61}
+.ledger-list>div{border-color:#b5c0c4}.ledger-list>div>span{background:#e1e8e7;border-color:#81939d;color:#3e5b6b}
+.reflection-list article{background:#f7f4eb;border-color:#71838d;box-shadow:3px 3px 0 #a4b1b7}.reflection-list article:nth-child(even){background:#e6ece9}
+.reflection-list article>span{color:#7b693f}.travel-note{background:#e2e9ec;border-color:#728997;color:#354f61}
+.session-list article{background:#e9edeb;border-color:#7f939e}.end-drawing{color:#566f80}
+/* Keep the complete illustration and the choices visible together on desktop. */
+@media(min-width:1100px){
+ .story-page{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(350px,1fr);grid-template-rows:auto auto auto;height:auto;min-height:calc(100dvh - 130px);align-content:start;gap:18px 26px;padding-top:20px;padding-bottom:24px}
+ .story-page>.scene-heading{grid-column:1/-1}
+ .story-page>.comic-frame{grid-column:1;grid-row:2/4;align-self:start;min-height:0;aspect-ratio:16/9;width:100%}
+ .story-page>.story-text{grid-column:2;grid-row:2;font-size:23px;line-height:1.42}
+ .story-page>.choices,.story-page>.choices.two-choices{grid-column:2;grid-row:3;display:flex;flex-direction:column;gap:15px}
+ .story-page>.choices>.pinch-button{min-height:80px;padding:15px 18px}
+ .story-page .choice-copy b{font-size:23px;line-height:1.2}
+}
+@media(max-width:1099px){.comic-frame{aspect-ratio:16/9;min-height:0;flex:none}.story-page{height:auto;min-height:calc(100dvh - 130px)}}

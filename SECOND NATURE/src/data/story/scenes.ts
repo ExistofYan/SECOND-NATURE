@@ -19,11 +19,11 @@ export const scenes: Scene[] = [
     choice('drinks','Bring my cup and bottle','Leave the lunch box and shopping bag at home.','You bring your cup and bottle. At lunch and the shop, you will need another way to carry things.',[{type:'pack',ids:['cup','bottle']}]),
     choice('none','Leave all four at home','You may need throwaway things or things you can borrow.','You leave the four things at home. You can still borrow a cafe cup or lunch tray later.',[{type:'pack',ids:[]}]),
   ]),
-  {...scene('S02T',1,'07:50','By the front door','How will you get to school?', 'Your bag is ready. Now you need to get to school. In this story, the weather is dry, the cycle path is safe, and the bus is running. A parent is visiting and can also drive you. How will you go?', 'The student stands by the front door with a school bag, ready to choose how to travel to campus.', [
+  {...scene('S02T',1,'07:50','By the front door','How will you get to school?', 'Your bag is ready. Now you need to get to school. In this story, the weather is dry, the cycle path is safe, and the bus is running. A parent is visiting and can also drive you. How will you go?', 'Three ways to get to campus on a dry morning: a bicycle on a cycle path, a bus at a stop, and a parent driving a car.', [
     choice('bike','Ride my bicycle','Pedal to school. No exhaust from the bike.','You cycle to school and park your bike. The bike makes no exhaust on this trip.'),
     choice('bus','Take the bus','Share a diesel bus already running this route.','You take the bus with other passengers. It makes exhaust, but your parent does not need to make a separate car trip.'),
     choice('car','Ask my parent to drive','A separate petrol car trip just to take me.','Your parent makes a separate petrol car trip to drop you off. The car burns fuel and makes exhaust.'),
-  ]), artId:'S02'},
+  ]), artId:'S02T'},
   scene('S03',1,'08:30','Campus coffee shop','A coffee before class', 'You reach school with time for a coffee before class. The cafe can fill a clean cup you brought, lend you a cup to use inside, or give you a throwaway cup and lid.', 'A barista stands behind a coffee machine and counter, facing the student. Cups and café shelves fill the background.', [
     choice('own','Fill my own cup','Use the clean cup in my bag.','You drink your coffee from your own cup. No new cup or lid is needed.',[change(['cup'],{condition:'used'})],'cup'),
     choice('inside','Sit here and borrow a cup','Return the cafe cup after drinking.','You drink inside and return the cup. No throwaway cup or lid is needed.'),

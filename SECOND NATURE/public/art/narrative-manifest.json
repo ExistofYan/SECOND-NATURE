@@ -1,0 +1,153 @@
+[
+  {
+    "sceneId": "cover",
+    "path": "art/narrative/cover.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S01",
+    "path": "art/narrative/S01.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S02",
+    "path": "art/narrative/S02.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S02T-bike",
+    "path": "art/narrative/S02T-bike.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only",
+    "weather": "Dry morning, pale sunshine and clouds"
+  },
+  {
+    "sceneId": "S02T-bus",
+    "path": "art/narrative/S02T-bus.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only",
+    "weather": "Dry morning, pale sunshine and clouds"
+  },
+  {
+    "sceneId": "S02T-car",
+    "path": "art/narrative/S02T-car.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only",
+    "weather": "Dry morning, pale sunshine and clouds"
+  },
+  {
+    "sceneId": "S03",
+    "path": "art/narrative/S03.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S04",
+    "path": "art/narrative/S04.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S05",
+    "path": "art/narrative/S05.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S06",
+    "path": "art/narrative/S06.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S07",
+    "path": "art/narrative/S07.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S08",
+    "path": "art/narrative/S08.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S09",
+    "path": "art/narrative/S09.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S10",
+    "path": "art/narrative/S10.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S11",
+    "path": "art/narrative/S11.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S12",
+    "path": "art/narrative/S12.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S13",
+    "path": "art/narrative/S13.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S14",
+    "path": "art/narrative/S14.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S15",
+    "path": "art/narrative/S15.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S16",
+    "path": "art/narrative/S16.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only"
+  },
+  {
+    "sceneId": "S02T",
+    "path": "art/narrative/S02T.png",
+    "version": "1.2.0",
+    "style": "Flat 2D hand-drawn narrative-game illustration; muted slate, cream and mustard",
+    "source": "Generated with imagegen using the user-supplied visual reference; panel extraction only",
+    "weather": "Dry morning, pale sunshine and clouds"
+  }
+]

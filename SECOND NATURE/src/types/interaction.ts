@@ -44,6 +44,7 @@ export type DragOutcome =
 export interface GestureFrame {
   available: boolean;
   pinching: boolean;
+  openConfirmed?: boolean;
   /** Smoothed pointer in stage-local CSS pixels (already mirrored + mapped). */
   x: number;
   y: number;

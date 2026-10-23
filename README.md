@@ -16,12 +16,14 @@ The story follows breakfast, the journey to school, classes, shopping and an eve
 
 1. Open **[Play Online](https://second-nature-one-day-less-waste.netlify.app/)** in desktop Chrome or Edge.
 2. Allow camera access and complete the practice.
-3. **Point** at an option with an open hand.
+3. **Point** at an option with either open hand.
 4. **Pinch** your thumb and index finger to choose.
 5. **Release** before making your next choice.
 6. Read the black caption panel, then **point and pinch Continue** when ready.
 
 Camera images are processed on your device and are not recorded.
+
+Use one hand at a time to choose. Switching hands requires opening your fingers before a fresh pinch.
 
 ## About the Project
 
