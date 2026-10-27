@@ -30,7 +30,7 @@ export const useStoryGame=defineStore('story',()=>{
   function start(kind:Session['kind']='play',code:string|null=null,collect=false,set:'A'|'B'='A',parent:string|null=null,identity?:ParticipantIdentity){
     if(identity&&participantError(identity))throw new Error(participantError(identity));
     animationToken++;clock=null;pauseReasons.value=[];modal.value=null;
-    session.value=createSession(kind,code,parent,motion.value,collect,set);
+    session.value=createSession(kind,kind==='research'&&identity?identity.studentId.trim().toLowerCase():code,parent,motion.value,collect,set);
     session.value.timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone;
     if(kind==='research'&&identity){
       session.value.participant={fullName:identity.fullName.trim(),studentId:identity.studentId.trim().toLowerCase(),course:identity.course};

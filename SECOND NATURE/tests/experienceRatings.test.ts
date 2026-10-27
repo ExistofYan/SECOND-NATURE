@@ -48,8 +48,11 @@ it('registers identity only after valid details, course confirmation and a fresh
  await pinch('COMP6390');await pinch('Review consent');expect(game.page).toBe('registration');
  inputs[1].value='U0000000';inputs[1].dispatchEvent(new Event('input'));await nextTick();
  await pinch('Review consent');expect(game.page).toBe('consent');expect(game.sessions).toHaveLength(0);
+ expect(document.querySelector('.code-selector')).toBeNull();
+ expect(document.body.textContent).not.toContain('PARTICIPANT CODE');
  await pinch('I agree to take part');expect(game.page).toBe('practice');
  expect(game.session?.participant).toEqual({fullName:'Synthetic Test Participant',studentId:'u0000000',course:'COMP6390'});
+ expect(game.session?.participantCode).toBe('u0000000');
  expect(game.session?.consentVersion).toBe('identified-course-study-1');
  expect(game.session?.timeZone).toBeTruthy();
  expect(JSON.parse(localStorage.getItem(STORY_KEY)!)[0].participant).toEqual(game.session?.participant);

@@ -21,7 +21,7 @@ import { participantError } from './domain/story/participant';
 import { APP_VERSION } from './config/interaction';
 const game=useStoryGame(),nav=useGestureNavStore();
 const device=useDeviceStore();
-const video=ref<HTMLVideoElement|null>(null),practiceStep=ref(0),participant=ref(1),collectProbes=ref(false),probeSet=ref<'A'|'B'>('A'),probeIndex=ref(0),sessionPage=ref(0),itemPage=ref(0),downloadStatus=ref('');
+const video=ref<HTMLVideoElement|null>(null),practiceStep=ref(0),collectProbes=ref(false),probeSet=ref<'A'|'B'>('A'),probeIndex=ref(0),sessionPage=ref(0),itemPage=ref(0),downloadStatus=ref('');
 const exporting=ref(false);
 const fullName=ref(''),studentId=ref(''),course=ref<''|'COMP3900'|'COMP6390'>('');
 const nameInput=ref<HTMLInputElement|null>(null),idInput=ref<HTMLInputElement|null>(null);
@@ -29,7 +29,7 @@ const registrationError=computed(()=>participantError({fullName:fullName.value,s
 function startResearch(){
   if(registrationError.value||!course.value)return;
   practiceStep.value=0;
-  game.start('research','P'+String(participant.value).padStart(2,'0'),collectProbes.value,probeSet.value,null,{fullName:fullName.value,studentId:studentId.value,course:course.value});
+  game.start('research',null,collectProbes.value,probeSet.value,null,{fullName:fullName.value,studentId:studentId.value,course:course.value});
   fullName.value='';studentId.value='';course.value='';
 }
 const scene=computed(()=>game.session?.modelSnapshot[game.displayedIndex]);
@@ -72,8 +72,6 @@ function submitRating(value:number){
 }
 function openResearch(){
   fullName.value='';studentId.value='';course.value='';
-  const used=new Set(game.sessions.map(s=>s.participantCode));
-  participant.value=Array.from({length:99},(_,i)=>i+1).find(i=>!used.has('P'+String(i).padStart(2,'0')) )??99;
   game.session=null;game.page='registration';game.transition='awaitingRelease';
 }
 function decline(){fullName.value='';studentId.value='';course.value='';game.page='cover';}
@@ -132,7 +130,7 @@ onBeforeUnmount(()=>{if(lossTimer)clearTimeout(lossTimer);nav.disable();handTrac
 <p role="status">{{registrationError || 'Details ready. Check them before agreeing to participate.'}}</p>
 </div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Cancel</PinchButton><PinchButton :disabled="!!registrationError" @press="game.page='consent'">Review consent <InkIcon name="arrow"/></PinchButton></div></main>
 
-    <main v-else-if="game.page==='consent'" class="consent-page center-page"><span class="eyebrow">RESEARCH PARTICIPATION</span><h1>Your choice to take part.</h1><p>This exploratory class study looks at how students understand waste prevention through a gesture comic.</p><div class="consent-box"><p>The device records choices, timing, pauses and your short responses. Research mode also records your name, student ID, course and timestamps for the course participant list and exported report. It does not save camera video, photos or hand landmarks.</p><p>Participation is voluntary. You can pause, end and export a partial session. Records stay in this browser until exported; exports contain your identity. Your researcher explains course submission access, storage, deletion and withdrawal before you agree. Separate permission is needed for interview recording.</p></div><p><b>{{fullName}}</b> / {{studentId}} / {{course}}</p><PinchButton variant="quiet" @press="game.page='registration'">Edit participant details</PinchButton><div class="study-settings"><div><span class="mini-label">PARTICIPANT CODE</span><div class="code-selector"><PinchButton variant="secondary" @press="participant=Math.max(1,participant-1)">−</PinchButton><strong>P{{String(participant).padStart(2,'0')}}</strong><PinchButton variant="secondary" @press="participant=Math.min(99,participant+1)">+</PinchButton></div></div><PinchButton variant="secondary" @press="collectProbes=!collectProbes">Knowledge checks: {{collectProbes?'ON':'OFF'}}</PinchButton><PinchButton v-if="collectProbes" variant="secondary" @press="probeSet=probeSet==='A'?'B':'A'">Check order: {{probeSet==='A'?'A → B':'B → A'}}</PinchButton></div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Decline and return</PinchButton><PinchButton :disabled="!!registrationError" @press="startResearch">I agree to take part <InkIcon name="arrow"/></PinchButton></div></main>
+    <main v-else-if="game.page==='consent'" class="consent-page center-page"><span class="eyebrow">RESEARCH PARTICIPATION</span><h1>Your choice to take part.</h1><p>This exploratory class study looks at how students understand waste prevention through a gesture comic.</p><div class="consent-box"><p>The device records choices, timing, pauses and your short responses. Research mode also records your name, student ID, course and timestamps for the course participant list and exported report. It does not save camera video, photos or hand landmarks.</p><p>Participation is voluntary. You can pause, end and export a partial session. Records stay in this browser until exported; exports contain your identity. Your researcher explains course submission access, storage, deletion and withdrawal before you agree. Separate permission is needed for interview recording.</p></div><p><b>{{fullName}}</b> / {{studentId}} / {{course}}</p><PinchButton variant="quiet" @press="game.page='registration'">Edit participant details</PinchButton><div class="study-settings"><PinchButton variant="secondary" @press="collectProbes=!collectProbes">Knowledge checks: {{collectProbes?'ON':'OFF'}}</PinchButton><PinchButton v-if="collectProbes" variant="secondary" @press="probeSet=probeSet==='A'?'B':'A'">Check order: {{probeSet==='A'?'A → B':'B → A'}}</PinchButton></div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Decline and return</PinchButton><PinchButton :disabled="!!registrationError" @press="startResearch">I agree to take part <InkIcon name="arrow"/></PinchButton></div></main>
 
     <main v-else-if="game.page==='pre'||game.page==='post'" class="center-page question-page"><span class="eyebrow">{{game.page==='pre'?'BEFORE':'AFTER'}} THE STORY · {{probeIndex+1}} / {{activeProbes.length}}</span><h1>A different everyday moment.</h1><p class="question-text">{{probe.text}}</p><div class="choices two-choices"><PinchButton v-for="(a,i) in probe.answers" :key="probe.id+i" variant="secondary" @press="submitProbe(i)"><span class="choice-letter">{{i?'B':'A'}}</span><b>{{a}}</b></PinchButton></div><small>No time limit. Answers are recorded without immediate corrections.</small><PinchButton variant="quiet" @press="game.exit()">End and save</PinchButton></main>
 
