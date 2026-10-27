@@ -14,7 +14,7 @@ Main: How do university students understand waste prevention through a gesture-c
 
 Confirm the actual course brief, participant eligibility, consent procedure, recording/storage requirements and submission format. Plan a small exploratory sample only after that check. Try one pilot to assess legibility, game duration, hand fatigue, transition pacing and the probe wording. Record the app/model version; do not pool changed versions without explanation.
 
-Run on the actual webcam and display. Check the cover, the packing, travel, printing, checkout, spare-dinner and final-tidying scenes and all summary pages. Check the 1366×768 and 1280×720 targets, including the longest three-choice screen. Confirm the last option is reachable. Never shrink the whole browser merely to make it fit. Check the report ZIP can be downloaded and opened on that browser.
+Run on the actual webcam and display. Check the cover, the packing, travel, printing, checkout, spare-dinner and final-tidying scenes and all summary pages. Check the 1366×768 and 1280×720 targets, including the longest three-choice screen. Confirm the last option is reachable. Never shrink the whole browser merely to make it fit. Check the single PDF report downloads and opens. Extract its original attachments with python materials/extract_report.py report.pdf --output materials/P01 and confirm that analyze_story.py can replay session.json.
 
 ## Explain and consent
 
@@ -29,7 +29,7 @@ Use a participant code. Keep identity mappings separately. Researcher explains t
 3. Complete the optional pre-check without corrections.
 4. Play the seventeen-scene story. Do not tell the participant which option to choose. Record directly observed issues and their own explanations separately. “No tracking” alone does not identify a failed pinch or intent.
 5. Complete the optional post-check, then four 1–5 ratings. Normal navigation then opens the full summary.
-6. Inspect the summary and export the ZIP using the gesture control on page four. Keep genuine observations and interview records separately.
+6. Inspect the summary and export the PDF using the gesture control on page four. Extract the original JSON/CSV records and analysis script into materials/P01 for submission. Keep genuine observations and interview records separately.
 7. Conduct the short interview below. If replay is offered, treat it as a separate child/free-play session, not a replacement for the first study session.
 
 The intended session duration is a planning estimate, not a requirement or result. Allow rest and overruns. The game has no answer timeout.

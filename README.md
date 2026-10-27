@@ -29,5 +29,7 @@ Use one hand at a time to choose. Switching hands requires opening your fingers 
 
 SECOND NATURE is an HCI coursework prototype exploring waste prevention through comic storytelling and gesture interaction.
 
+Save a single PDF at the end of the day: results, explanations of each choice, practical next steps and collected research responses. Original JSON/CSV records and the Python analysis script are embedded in that same PDF. To extract them for coursework, run `python materials/extract_report.py report.pdf --output materials/P01` from the application folder, or use a PDF viewer with an attachments panel. The download works offline without a print dialog.
+
 Built with **Vue 3, TypeScript, Pinia, Vite and MediaPipe**, it connects earlier decisions with later options and tracks individual items throughout the day. Results distinguish new single-use items, discarded materials, food waste and items kept in use.
 The revised scene-by-scene story and result rules are in [the story design document](./SECOND%20NATURE/docs/STORY_REDESIGN.md).

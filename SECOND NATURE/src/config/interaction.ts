@@ -21,7 +21,7 @@ export const interactionConfig = {
   /** consecutive stable reads required before a candidate appears */
   qrStableReads: 3,
   /** hand detection target frequency */
-  handDetectFps: 30,
+  handDetectFps: 60,
   /** normalised camera-region -> stage mapping window (spec §9.3) */
   pointerRegionMin: 0.15,
   pointerRegionMax: 0.85,
@@ -37,6 +37,6 @@ export function configSnapshot(): Record<string, number | string | boolean> {
   return { ...interactionConfig };
 }
 
-export const APP_VERSION = "1.2.0";
+export const APP_VERSION = "1.2.1";
 export const STORAGE_KEY = "ecosort:sessions:v1";
 export const SCHEMA_VERSION = 1 as const;

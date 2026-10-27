@@ -1,5 +1,6 @@
 import { storyTextFor } from './storyNarrative';
 import { scenes, initialInventory } from '../../data/story/scenes';
+import { APP_VERSION, configSnapshot } from '../../config/interaction';
 import type { Choice, Item, Session, StoryEvent, Timing, SceneVisit } from './types';
 export const VERSION = 'comic-day-1.2.0';
 const clone = <T>(x:T): T => JSON.parse(JSON.stringify(x));
@@ -11,8 +12,8 @@ export function log(s:Session, type:string, payload:Record<string,unknown> = {},
   s.events.push(e); return e;
 }
 export function createSession(kind:Session['kind']='play', participantCode:string|null=null, parentSessionId:string|null=null, reducedMotion=false, collectProbes=false, probeSet:'A'|'B'='A'): Session {
-  const s:Session = {sessionId:id(),schemaVersion:1,modelVersion:VERSION,appVersion:'1.2.0',kind,participantCode,consentAt:kind==='research'?new Date().toISOString():null,startedAt:new Date().toISOString(),endedAt:null,status:'active',parentSessionId,modelSnapshot:clone(scenes),initialInventory:clone(initialInventory),items:clone(initialInventory),events:[],visits:[],nextSceneIndex:0,reducedMotion,ratings:{},probes:[],studyPhase:'practice',collectProbes,probeSet};
-  log(s,'session_started',{kind,parentSessionId,reducedMotion});
+  const s:Session = {sessionId:id(),schemaVersion:1,modelVersion:VERSION,appVersion:APP_VERSION,kind,participantCode,consentAt:kind==='research'?new Date().toISOString():null,startedAt:new Date().toISOString(),endedAt:null,status:'active',parentSessionId,modelSnapshot:clone(scenes),initialInventory:clone(initialInventory),items:clone(initialInventory),events:[],visits:[],nextSceneIndex:0,reducedMotion,ratings:{},probes:[],studyPhase:'practice',collectProbes,probeSet};
+  log(s,'session_started',{kind,parentSessionId,reducedMotion,interaction:configSnapshot()});
   if(s.consentAt) log(s,'consent_given',{participantCode});
   return s;
 }

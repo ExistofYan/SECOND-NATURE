@@ -152,11 +152,16 @@ export class GestureInterpreter {
     const rawY = valid[TIP_INDEX].y;
     if (this.smoothed === null) {
       this.smoothed = { x: rawX, y: rawY };
-    } else if (this.candidate !== 'pinch' && !(wasPinching && this.candidate === "open")) {
-      // Opening thumb/index changes the fingertip position. Hold the aim while
-      // confirming release, so an intended drop cannot jump out of its target.
+    } else if ((this.candidate !== 'pinch' || wasPinching) && !(wasPinching && this.candidate === "open")) {
+      // Hold aim only while confirming a pinch/release. A held pinch must still
+      // follow hand movement; freezing it until release feels like lost tracking.
       const dt = Math.max(0, gap);
-      const alpha = 1 - Math.exp(-dt / this.cfg.pointerSmoothingTauMs);
+      // Suppress small landmark jitter, but follow purposeful movement faster.
+      // Distance is normalised, so this behaves consistently across displays.
+      const distance = Math.hypot(rawX - this.smoothed.x, rawY - this.smoothed.y);
+      const motion = Math.min(1, distance / 0.035);
+      const tau = this.cfg.pointerSmoothingTauMs * (1 - 0.7 * motion);
+      const alpha = 1 - Math.exp(-dt / Math.max(1, tau));
       this.smoothed = {
         x: this.smoothed.x + alpha * (rawX - this.smoothed.x),
         y: this.smoothed.y + alpha * (rawY - this.smoothed.y),

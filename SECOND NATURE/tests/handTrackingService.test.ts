@@ -31,8 +31,10 @@ describe('background inference backpressure',()=>{
   const v=video();await start(v);await tick();expect(frames()).toHaveLength(1);
   expect(createImageBitmap).toHaveBeenCalledWith(v,{resizeWidth:640,resizeHeight:360,resizeQuality:'low'});
   v.currentTime=2;await tick();v.currentTime=3;await tick();expect(frames()).toHaveLength(1);
-  reply(frames()[0]);await tick();expect(frames()).toHaveLength(2);
-  expect(frames()[1].timestamp).toBe(time);
+  const completedAt=time;
+  reply(frames()[0]);await Promise.resolve();await Promise.resolve();expect(frames()).toHaveLength(2);
+  expect(frames()[1].timestamp).toBe(completedAt);
+  await tick();expect(frames()).toHaveLength(2);
  });
  it('drops stale results after stop/restart and does not infer while hidden',async()=>{
   const v=video(),oldReceive=await start(v);await tick();const stale=frames()[0];service.stop();

@@ -53,6 +53,22 @@ describe('two hands, one reliable click',()=>{
   expect(g.update(hand(.5,true).landmarks,1000,size).events).not.toContain('grab');
   expect(g.update(hand(.5,true).landmarks,1100,size).events).not.toContain('grab');
  });
+ it('follows movement after pinch confirmation without producing another click',()=>{
+  const g=new GestureInterpreter(interactionConfig);
+  g.update(hand(.5).landmarks,0,size);g.update(hand(.5).landmarks,100,size);
+  g.update(hand(.5,true).landmarks,150,size);
+  const click=g.update(hand(.5,true).landmarks,250,size);
+  expect(click.events).toContain('grab');
+  const moved=g.update(hand(.5,true,'Left',.7).landmarks,290,size);
+  expect(moved.x).toBeLessThan(click.x-.15);
+  expect(moved.pinching).toBe(true);expect(moved.events).not.toContain('grab');
+ });
+ it('follows a deliberate open-hand move within one inference interval',()=>{
+  const g=new GestureInterpreter(interactionConfig);
+  g.update(hand(.5).landmarks,0,size);g.update(hand(.5).landmarks,100,size);
+  const moved=g.update(hand(.5,false,'Left',.7).landmarks,133,size);
+  expect(moved.x).toBeCloseTo(.3,1);expect(moved.events).not.toContain('grab');
+ });
  it('forwards one loss event when a pinched controlling hand disappears',()=>{
   const g=new MultiHandInterpreter(interactionConfig);
   g.update([hand(.25)],0,size);g.update([hand(.25)],100,size);

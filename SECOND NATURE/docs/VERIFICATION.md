@@ -1,5 +1,15 @@
 # Verification record
 
+## 1.2.1 gesture and PDF export
+
+The 56 automated tests across 11 files pass, including sustained-pinch motion, deliberate-motion filtering and immediate latest-frame capture without an inference queue. The production build and TypeScript check pass. A single download has the application/pdf MIME type and a .pdf filename. Complete low/high-discard, partial and empty synthetic fixtures round-trip through the PDF attachments exactly; the extracted Python script reproduces frontend analysis. Extraction refuses to replace different existing records.
+
+The A4 PDF fixtures were parsed independently with pypdf and Poppler, and rendered for visual inspection. The high-discard fixture also exercises all six knowledge-check answers and four ratings. Personal feedback is rule-based on the item ledger and submitted choices. No participant findings or real-world sustainability claims are generated. New sessions record app version 1.2.1 and the interaction configuration; existing records keep their original versions. The story rules retain model version comic-day-1.2.0.
+
+No browser or real-webcam session was run for this change. The camera requests up to 60 FPS, which is a capability request, not a measured result. Check responsiveness and the PDF download on the actual study device before collecting participant data. Raw JSON/CSV data and the analysis script must be extracted from the PDF into the submission's materials folder; the personal PDF alone does not replace the required research evidence.
+
+## Earlier checks
+
 Implementation version: 1.2.0 / comic-day-1.1.1.
 
 The application and artwork changed; the story model keeps its version because the choice and item rules are unchanged.

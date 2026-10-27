@@ -62,6 +62,10 @@ export class HandTrackingService {
             if (this.running && request.generation === this.generation && !document.hidden) {
               this.onFrame?.(data.landmarks, data.timestamp, { width: data.width, height: data.height }, data.hands);
             }
+            // A newer camera frame may have arrived during inference. Consume it
+            // now instead of waiting an additional camera callback; capture()
+            // still enforces the rate cap, lifecycle and single-frame limit.
+            void this.capture();
           }
         };
         this.initTimer = setTimeout(() => fail('Loading timed out. Check the model and WASM resources, then reload.'), 60000);

@@ -1,4 +1,4 @@
-# Implementation notes - v1.2.0
+# Implementation notes - v1.2.1
 
 
 ## Model
@@ -37,7 +37,13 @@ A brief controlling-hand dropout keeps ownership during the 300 ms grace period.
 
 Play and research sessions are distinct. Consent is required before creating a research session. Declining returns without creating research data. Knowledge checks default off and retain actual answers when enabled. A/B order is researcher-selectable; this does not establish equivalent difficulty. Results follow post-checks and ratings in the normal study flow. Ratings are custom single items, not SUS. Replay creates a free-play child session; primary research uses the first session per participant.
 
-The ZIP has session.json, choices.csv, items.csv, events.csv, summary.csv, report.html, report.md, charts/*.svg, analyze_story.py and README.txt. CSV includes explicit missing values, quoting and spreadsheet-formula guards. Reports can be printed to PDF from the browser. Item charts split types and units; food is in a separate chart. Comparison data appear only when a real parent session exists. Nothing generates participant quotations, themes, significance tests or causal conclusions.
+The download is one PDF, generated offline without a print dialog or external dependency. It contains session metadata, item counts by type and destination, rule-based personal interpretations, available alternatives for each submitted choice, actual ratings and knowledge-check responses, decision timing context, and the item ledger. Missing answers remain missing, and partial days are identified. Food servings and non-food items remain separate. No environmental score or personality label is generated.
+
+Original session.json, choices.csv, items.csv, events.csv, summary.csv, choice-review.csv and analyze_story.py are embedded as lossless UTF-8 attachments inside that PDF. Parent-session and comparison data are included when available. Use a PDF reader's attachments panel or `python materials/extract_report.py report.pdf --output materials/P01` to recover the records for the coursework materials folder. Extraction uses only Python's standard library and refuses to overwrite differing existing data. `storyFiles` remains an internal data/replay API; it is no longer downloaded as a ZIP. Nothing generates participant quotations, themes, significance tests or causal conclusions.
+
+## Gesture responsiveness in 1.2.1
+
+The pointer holds its aim during initial pinch and release confirmation, then follows motion again during a sustained pinch. A distance-adaptive filter uses the original 35 ms smoothing for tiny movements and reduces it to 10.5 ms for deliberate movement. The existing 70 ms pinch confirmation and release-to-rearm protections remain. Camera capture requests up to 60 FPS when supported; the detector cap is 60 FPS, with only one frame in flight. On an inference reply, a fresh camera frame can be captured immediately rather than waiting for another camera callback. Slower cameras and inference still determine the achievable rate. These changes do not establish a measured hardware FPS or real-hand usability result.
 
 ## Still requires real-world verification
 
