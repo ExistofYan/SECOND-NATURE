@@ -31,7 +31,7 @@ function completedLegacy(){
  completed.studyPhase='summary';completed.appVersion='1.2.0';return completed;
 }
 
-it.each(['play','research'] as const)('records four fresh gesture ratings after %s and includes those answers in the PDF',async kind=>{
+it.each(['play','research'] as const)('records sixteen fresh gesture ratings after %s and includes those answers in the PDF',async kind=>{
  const pinia=createPinia(),nav=useGestureNavStore(pinia),game=useStoryGame(pinia);
  vi.spyOn(nav,'enable').mockResolvedValue(undefined);
  app=createApp(App);app.use(pinia);app.mount('#app');
@@ -45,7 +45,7 @@ it.each(['play','research'] as const)('records four fresh gesture ratings after 
  nav.running=true;nav.pointerActive=true;
  let target:Element|null=null;
  Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
- const scores=[2,4,5,3];
+ const scores=ratingQuestions.map((_,i)=>[2,4,5,3][i%4]);
  for(let i=0;i<ratingQuestions.length;i++){
   expect(document.querySelector('.experience-page h1')?.textContent).toBe(ratingQuestions[i].title);
   target=document.querySelector(`[data-rating-value="${scores[i]}"]`);
@@ -72,16 +72,16 @@ it.each(['play','research'] as const)('records four fresh gesture ratings after 
   }
  }
  expect(game.page).toBe('summary');expect(game.session!.studyPhase).toBe('summary');expect(game.canContinue).toBe(false);
- expect(game.session!.ratings).toEqual({ease:2,fatigue:4,coherence:5,clarity:3});
+ expect(game.session!.ratings).toEqual(Object.fromEntries(ratingQuestions.map((q,i)=>[q.key,scores[i]])));
  for(const e of game.session!.events.filter(e=>e.type==='rating_submitted')){
   expect(e.wallTimeISO).toBeTruthy();expect(e.payload.question).toBeTruthy();expect(e.payload.label).toBeTruthy();
  }
  const pdf=new TextDecoder().decode(buildStoryPdf(game.session!));
- expect(pdf).toContain('Your four experience ratings');expect(pdf).toContain('4 of 4 ratings submitted');
- scores.forEach(n=>expect(pdf).toContain(`(${n} / 5)`));
+ expect(pdf).toContain('WASTE PREVENTION RATINGS');expect(pdf).toContain('INTERFACE EXPERIENCE RATINGS');expect(pdf).toContain('16 of 16 ratings submitted');
+ scores.forEach(n=>expect(pdf.includes(`(${n} / 5 - `)).toBe(true));
 });
 
-it('keeps optional research post-checks before the four experience ratings',()=>{
+it('keeps optional research post-checks before the experience ratings',()=>{
  const s=almostFinished('research',true),v=openVisit(s);
  const completed=commitChoice(s,v.visitId,'keep',{decisionActiveMs:1,decisionWallMs:1,pausedMs:0});
  expect(completed.studyPhase).toBe('post');
@@ -115,7 +115,7 @@ it('provides a visible gesture entry from results that are already open',async()
  const s=completedLegacy();game.sessions.push(s);game.session=s;game.setPage('summary');await nextTick();
  const target=document.querySelector<HTMLButtonElement>('.open-feedback')!;
  expect(target.textContent).toContain('Rate my experience');
- expect(document.querySelector('.feedback-banner')?.textContent).toContain('0 / 4 answered');
+ expect(document.querySelector('.feedback-banner')?.textContent).toContain('0 / 16 answered');
  Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
  nav.running=true;nav.pointerActive=true;nav.pinching=false;nav.awaitingRelease=false;nav.frameId++;await nextTick();
  nav.awaitingRelease=false;nav.frameId++;await nextTick();
@@ -135,6 +135,17 @@ it('routes an old final caption to ratings even if its stored next page is summa
 it('leaves incomplete days and already-rated days available as results without new ratings',()=>{
  const game=useStoryGame(),partial=almostFinished();game.sessions.push(partial);game.showSession(partial);
  expect(game.page).toBe('summary');expect(game.feedbackPending).toBe(false);expect(game.openRatings()).toBe(false);
- const rated=completedLegacy();rated.ratings={ease:2,fatigue:4,coherence:5,clarity:3};game.sessions.push(rated);game.showSession(rated);
- expect(game.page).toBe('summary');expect(game.feedbackPending).toBe(false);expect(game.ratingCount).toBe(4);
+ const rated=completedLegacy();rated.ratings=Object.fromEntries(ratingQuestions.map(q=>[q.key,3]));game.sessions.push(rated);game.showSession(rated);
+ expect(game.page).toBe('summary');expect(game.feedbackPending).toBe(false);expect(game.ratingCount).toBe(16);
+});
+
+it('preserves all four old scores while reopening only the newly added questions',()=>{
+ const game=useStoryGame(),s=completedLegacy();
+ s.ratings={ease:2,fatigue:4,coherence:5,clarity:3};
+ game.sessions.push(s);game.showSession(s);
+ expect(game.page).toBe('ratings');expect(game.ratingCount).toBe(4);
+ expect(game.session!.ratings).toEqual({ease:2,fatigue:4,coherence:5,clarity:3});
+ for(const q of ratingQuestions.filter(q=>!(q.key in s.ratings)))expect(game.rating(q.key,3)).toBe(true);
+ expect(game.ratingCount).toBe(16);expect(game.feedbackPending).toBe(false);
+ expect(game.session!.ratings.fatigue).toBe(4);
 });

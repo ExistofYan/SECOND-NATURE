@@ -6,8 +6,8 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo One Day, Less Waste 1.2.3
-echo Open http://127.0.0.1:5174/?v=1.2.3 and allow the camera in your browser.
+echo One Day, Less Waste 1.3.0
+echo Open http://127.0.0.1:5174/?v=1.3.0 and allow the camera in your browser.
 echo Keep this window open while playing. Press Ctrl+C to stop the local server.
-start "" "http://127.0.0.1:5174/?v=1.2.3"
+start "" "http://127.0.0.1:5174/?v=1.3.0"
 python -m http.server 5174 --bind 127.0.0.1 --directory dist

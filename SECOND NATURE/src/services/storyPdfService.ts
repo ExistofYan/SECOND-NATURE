@@ -1,7 +1,7 @@
 import { analyze, reflections } from '../domain/story/storyAnalysis';
 import { selectedChoice, travelSummary } from '../domain/story/storyNarrative';
 import type { Session } from '../domain/story/types';
-import { isRatingValue, ratingQuestions, probeSets } from '../data/story/probes';
+import { isRatingValue, ratingQuestions, ratingSections, probeSets } from '../data/story/probes';
 import { ReportPdf } from './reportPdf';
 import { storyFiles } from './storyReportData';
 
@@ -102,14 +102,21 @@ export function buildStoryPdf(s: Session, previous: Session | null = null): Uint
   }
   if (!review.length) pdf.paragraph('No choices submitted. Unreached scenes remain unobserved.');
 
-  pdf.page('Research responses');
-  pdf.heading('What you actually reported');
-  pdf.paragraph('Only submitted responses appear as data. Missing values stay missing; no interview statements or researcher observations are inferred.');
-  pdf.heading('Your four experience ratings', 14);
-  pdf.paragraph(`${ratingQuestions.filter(r=>isRatingValue(s.ratings[r.key])).length} of ${ratingQuestions.length} ratings submitted. Scores were selected using the in-game gesture controls.`, 9);
-  pdf.table(['Experience rating', 'Response', 'Scale: 1 to 5'], ratingQuestions.map(r => [r.title, isRatingValue(s.ratings[r.key])?`${s.ratings[r.key]} / 5`:'Not recorded', `${r.low} to ${r.high}`]), [248, 65, pdf.contentWidth - 313], 'Experience responses');
-  pdf.paragraph('For arm fatigue, a higher score means more tiredness. For the other three questions, a higher score means greater ease, connection or clarity. Scores are reported separately, without a combined total.', 9);
-  pdf.paragraph('These four custom single-item ratings are not a SUS questionnaire or a validated combined score.', 9);
+  for (const section of ratingSections) {
+    pdf.page(section.title + ' ratings');
+    pdf.heading(section.title);
+    pdf.paragraph(section.description, 10);
+    pdf.paragraph(`${ratingQuestions.filter(r=>isRatingValue(s.ratings[r.key])).length} of ${ratingQuestions.length} ratings submitted overall. Missing answers remain unrecorded.`, 9);
+    const questions = ratingQuestions.filter(r=>r.section===section.key);
+    pdf.paragraph(`${questions.filter(r=>isRatingValue(s.ratings[r.key])).length} of ${questions.length} responses recorded in this section.`, 9);
+    pdf.table(['Question / recorded answer', 'Scale labels: 1 / 2 / 3 / 4 / 5'], questions.map(r => {
+      const value=s.ratings[r.key];
+      return [`${r.title}\n${isRatingValue(value)?`${value} / 5 - ${r.labels[value-1]}`:'Not recorded'}`, r.labels.map((label,i)=>`${i+1}: ${label}`).join('; ')];
+    }), [277, pdf.contentWidth - 277], section.title + ' / continued');
+  }
+  pdf.paragraph('Higher fatigue means more tiredness; higher scores on the other questions mean more of the named experience, understanding, confidence, relevance or intention. These custom single-item ratings are reported separately, without a combined total. They are not SUS or a validated scale.', 9);
+  pdf.paragraph('Waste-prevention answers describe perceived understanding and current intentions, not a measured increase in knowledge or a reduction in real-world waste. Responsiveness and selection accuracy are self-reports, not measured latency or observed error rates. No baseline comparison is inferred.', 9);
+  pdf.page('Research context');
   if (s.probes.length) {
     pdf.heading('Knowledge-check responses');
     const all = [...probeSets.A, ...probeSets.B];

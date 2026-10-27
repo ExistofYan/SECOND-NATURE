@@ -4,7 +4,7 @@ import type { Session, SceneVisit, Timing } from '../domain/story/types';
 import { createSession, availableChoices, commitChoice, openVisit, markReady, log, DecisionClock, newTimingSegment } from '../domain/story/sceneEngine';
 import { loadSessions, saveSessions } from '../services/storyStorageService';
 import { prepareArt } from '../services/storyAssetService';
-import { isRatingValue, ratingQuestions } from '../data/story/probes';
+import { isRatingValue, ratingQuestions, RATING_INSTRUMENT_VERSION } from '../data/story/probes';
 import { APP_VERSION } from '../config/interaction';
 export type Page='cover'|'consent'|'practice'|'pre'|'story'|'post'|'ratings'|'summary'|'sessions';
 export type Transition='interactive'|'committing'|'aftermath'|'fadeOut'|'blackHold'|'reading'|'fadeIn'|'awaitingRelease';
@@ -105,12 +105,12 @@ export const useStoryGame=defineStore('story',()=>{
     const question=ratingQuestions.find(q=>q.key===key);
     if(!session.value||page.value!=='ratings'||!question||!isRatingValue(value)||isRatingValue(session.value.ratings[key]))return false;
     session.value.ratings[key]=value;
-    event('rating_submitted',{key,value,question:question.title,low:question.low,high:question.high,label:question.labels[value-1]});
+    event('rating_submitted',{key,value,question:question.title,low:question.low,high:question.high,label:question.labels[value-1],labels:question.labels,section:question.section,highMeaning:question.highMeaning,instrumentVersion:RATING_INSTRUMENT_VERSION,appVersion:APP_VERSION});
     save();return true;
   }
   function openRatings(source='results'){
     if(!session.value||!needsFeedback(session.value))return false;
-    event('ratings_opened',{source,answered:ratingCount.value,storyEndedAt:session.value.endedAt,appVersion:APP_VERSION});
+    event('ratings_opened',{instrumentVersion:RATING_INSTRUMENT_VERSION,source,answered:ratingCount.value,storyEndedAt:session.value.endedAt,appVersion:APP_VERSION});
     setPage('ratings');return true;
   }
   function probe(phase:string,set:string,questionId:string,choiceId:string,correct:boolean){if(session.value){session.value.probes.push({phase,set,questionId,choiceId,correct});event('probe_answered',{phase,set,questionId,choiceId,correct});save();}}

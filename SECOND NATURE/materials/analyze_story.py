@@ -4,6 +4,22 @@ import json
 import csv
 import statistics
 from collections import defaultdict
+from pathlib import Path
+
+def rating_value(value):
+    return value if type(value) is int and 1 <= value <= 5 else None
+
+def rating_summary(sessions, questions):
+    """Descriptive ordinal responses, with a separate denominator for each item."""
+    rows = []
+    for q in questions:
+        values = [v for s in sessions if (v := rating_value(s.get('ratings', {}).get(q['key']))) is not None]
+        rows.append(dict(key=q['key'], section=q['section'], question=q['title'], n=len(values),
+                         missing=len(sessions)-len(values),
+                         median=statistics.median(values) if values else None,
+                         minimum=min(values) if values else None, maximum=max(values) if values else None,
+                         distribution={str(i): values.count(i) for i in range(1, 6)}))
+    return rows
 
 def replay(session):
     items = {i['itemId']: dict(i) for i in session['initialInventory']}
@@ -39,6 +55,8 @@ def analyze(session):
                 help=sum(e['type'] == 'researcher_help' for e in session['events']))
 
 def main(paths):
+    definition = Path(__file__).with_name('rating-questionnaire.json')
+    questions = json.loads(definition.read_text(encoding='utf-8'))['questions'] if definition.exists() else []
     sessions = []
     for path in paths:
         with open(path, encoding='utf-8-sig') as f:
@@ -52,7 +70,7 @@ def main(paths):
         print(json.dumps(analyze(sessions[0]), indent=2))
         return
     writer = csv.writer(sys.stdout)
-    writer.writerow(['participant', 'session', 'kind', 'status', 'primary_first', 'scenes', 'new_single_use', 'non_food_discarded', 'food_discarded_servings'])
+    writer.writerow(['participant', 'session', 'kind', 'status', 'primary_first', 'scenes', 'new_single_use', 'non_food_discarded', 'food_discarded_servings'] + [q['key'] for q in questions])
     seen = set()
     primary = defaultdict(list)
     for s in sorted(sessions, key=lambda x: x['startedAt']):
@@ -61,15 +79,21 @@ def main(paths):
         if s['kind'] == 'research' and participant:
             seen.add(participant)
         a = analyze(s)
-        writer.writerow([participant or 'none', s['sessionId'], s['kind'], s['status'], bool(is_primary), a['completedScenes'], a['newSingleUse'], a['nonFoodWaste'], a['foodWaste']])
+        writer.writerow([participant or 'none', s['sessionId'], s['kind'], s['status'], bool(is_primary), a['completedScenes'], a['newSingleUse'], a['nonFoodWaste'], a['foodWaste']] + [rating_value(s.get('ratings', {}).get(q['key'])) for q in questions])
         if is_primary and s['status'] == 'completed':
-            primary[s['modelVersion']].append(a)
+            primary[s['modelVersion']].append((a, s))
     for version, rows in primary.items():
         print('\nFirst completed primary research records only; partial first records remain in the table. Model =', version, 'n =', len(rows), file=sys.stderr)
         for key in ('newSingleUse', 'nonFoodWaste', 'foodWaste'):
-            values = [a[key] for a in rows]
+            values = [a[key] for a, _ in rows]
             if values:
                 print(key, 'median =', statistics.median(values), 'range =', (min(values), max(values)), file=sys.stderr)
+        if questions:
+            print('Per-question ratings (1-5; fatigue: higher = more tired). No combined score.', file=sys.stderr)
+            for row in rating_summary([s for _, s in rows], questions):
+                print(json.dumps(row), file=sys.stderr)
+    if not questions:
+        print('For rating summaries, keep rating-questionnaire.json beside this script (extract it from a current report).', file=sys.stderr)
     print('Versions are grouped separately. No causal or long-term learning inference.', file=sys.stderr)
 
 if __name__ == '__main__':

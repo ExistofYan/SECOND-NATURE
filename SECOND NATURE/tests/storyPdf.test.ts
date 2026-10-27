@@ -1,13 +1,14 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildStoryPdf, personalInsights } from '../src/services/storyPdfService';
+import { storyFiles } from '../src/services/storyReportData';
 import { analyze } from '../src/domain/story/storyAnalysis';
 import { createSession, openVisit, markReady, commitChoice } from '../src/domain/story/sceneEngine';
 import type { Session } from '../src/domain/story/types';
-import { probeSets } from '../src/data/story/probes';
+import { probeSets, ratingQuestions } from '../src/data/story/probes';
 const low=['one','all','bike','own','refill','digital','own','one','message','plate','one','loose','own','cook','save','repair','keep'];
 const high=['extra','none','car','takeaway','buy','single','disposable','large','flyers','bagged','three','tray','plastic','order','discard','discard','mixed'];
 function route(choices:string[]) {
@@ -21,7 +22,7 @@ describe('one-file PDF results and raw evidence',()=>{
   const dir=mkdtempSync(join(tmpdir(),'second-nature-pdf-'));
   const samples:{name:string;session:Session}[]=[{name:'low',session:route(low)},{name:'high',session:route(high)},{name:'partial',session:route(['extra'])},{name:'empty',session:createSession()}];
   // Synthetic fixture only: exercise long questionnaire content and pagination.
-  samples[1].session.ratings={ease:3,fatigue:4,coherence:5,clarity:2};
+  samples[1].session.ratings=Object.fromEntries(ratingQuestions.map((q,i)=>[q.key,1+i%5]));
   samples[1].session.probes=[...probeSets.A.map(q=>({phase:'pre',set:'A',questionId:q.id,choiceId:String(q.correct),correct:true})),...probeSets.B.map(q=>({phase:'post',set:'B',questionId:q.id,choiceId:String(q.correct),correct:true}))];
   for(const {name,session}of samples){
    const bytes=buildStoryPdf(session),path=join(dir,`${name}.pdf`),output=join(dir,name);
@@ -50,6 +51,30 @@ describe('one-file PDF results and raw evidence',()=>{
   expect(b.actions[0]).toContain('smaller serving');
   const partial=personalInsights(route(['extra']));
   expect(partial.observations.join(' ')).toContain('partial day');
+ });
+ it('exports every ordinal response and reproduces per-item statistics without counting replays as participants',()=>{
+  const first=route(low),second=route(high),replay=route(low),free=route(low);
+  first.ratings=Object.fromEntries(ratingQuestions.map(q=>[q.key,5]));
+  second.participantCode='P02';second.ratings={ease:1};
+  replay.parentSessionId=first.sessionId;free.kind='play';free.participantCode=null;
+  const dir=mkdtempSync(join(tmpdir(),'second-nature-ratings-'));
+  const files=storyFiles(first);
+  expect(JSON.parse(files['rating-questionnaire.json'])).toEqual(JSON.parse(readFileSync('materials/rating-questionnaire.json','utf8')));
+  for(const name of ['rating-questionnaire.json','analyze_story.py'])writeFileSync(join(dir,name),files[name]);
+  const paths=[first,second,replay,free].map((s,i)=>{const path=join(dir,`${i}.json`);writeFileSync(path,JSON.stringify(s));return path;});
+  const result=spawnSync('python',[join(dir,'analyze_story.py'),...paths],{encoding:'utf8'});
+  expect(result.status).toBe(0);expect(result.stdout.split('\n')[0]).toContain('foodPlanningIntention');
+  const rows=result.stderr.split(/\r?\n/).filter(line=>line.startsWith('{')).map(line=>JSON.parse(line));
+  expect(rows).toHaveLength(16);
+  expect(rows.find(r=>r.key==='ease')).toMatchObject({n:2,missing:0,median:3,minimum:1,maximum:5,distribution:{'1':1,'2':0,'3':0,'4':0,'5':1}});
+  expect(rows.find(r=>r.key==='fatigue')).toMatchObject({n:1,missing:1,median:5});
+  const partial=storyFiles(second)['ratings.csv'];
+  expect(partial).toContain('More arm fatigue');expect(partial).toContain('missing');
+  const bytes=buildStoryPdf(first),pdfPath=join(dir,'ratings.pdf'),out=join(dir,'extracted');writeFileSync(pdfPath,bytes);
+  execFileSync('python',['materials/extract_report.py',pdfPath,'--output',out]);
+  expect(readFileSync(join(out,'ratings.csv'),'utf8')).toBe(files['ratings.csv']);
+  const text=new TextDecoder().decode(bytes);
+  for(const q of ratingQuestions)expect(text).toContain(q.labels[4]);
  });
  it('downloads exactly one PDF and releases the temporary anchor',async()=>{
   const clicks:{download:string;href:string}[]=[],anchors:any[]=[];

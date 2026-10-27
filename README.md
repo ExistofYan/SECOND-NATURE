@@ -20,7 +20,7 @@ The story follows breakfast, the journey to school, classes, shopping and an eve
 4. **Pinch** your thumb and index finger to choose.
 5. **Release** before making your next choice.
 6. Read the black caption panel, then **point and pinch Continue** when ready.
-7. After the final scene, answer four experience questions by **pointing and pinching a score from 1 to 5**. Each answer is saved immediately and included in your PDF report. You can save and finish the questions later.
+7. After the final scene, answer 16 ratings about waste prevention and interface experience (eight each) by **pointing and pinching a score from 1 to 5**. Each answer is saved immediately and included in your PDF report. You can save and finish the questions later.
 
 Already finished an earlier version? Open **Saved days → View / export** to complete any missing ratings. A **Rate my experience** button is also available on results pages while answers are missing.
 

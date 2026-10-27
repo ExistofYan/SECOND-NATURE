@@ -1,0 +1,259 @@
+{
+  "version": "waste-ui-1",
+  "sections": [
+    {
+      "key": "waste",
+      "title": "Waste prevention",
+      "description": "Think about your understanding and intentions after playing. There are no right or wrong ratings."
+    },
+    {
+      "key": "interface",
+      "title": "Interface experience",
+      "description": "Think about how the game felt to use, including any difficulties."
+    }
+  ],
+  "questions": [
+    {
+      "key": "singleUseUnderstanding",
+      "section": "waste",
+      "title": "How clear are you about which everyday choices create single-use waste?",
+      "low": "Not at all clear",
+      "high": "Extremely clear",
+      "labels": [
+        "Not at all clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Very clear",
+        "Extremely clear"
+      ],
+      "highMeaning": "Greater self-reported understanding"
+    },
+    {
+      "key": "foodWasteUnderstanding",
+      "section": "waste",
+      "title": "How clear are you about ways to avoid wasting edible food?",
+      "low": "Not at all clear",
+      "high": "Extremely clear",
+      "labels": [
+        "Not at all clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Very clear",
+        "Extremely clear"
+      ],
+      "highMeaning": "Greater self-reported understanding"
+    },
+    {
+      "key": "preventionUnderstanding",
+      "section": "waste",
+      "title": "How clear is the difference between preventing waste and recycling it?",
+      "low": "Not at all clear",
+      "high": "Extremely clear",
+      "labels": [
+        "Not at all clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Very clear",
+        "Extremely clear"
+      ],
+      "highMeaning": "Greater self-reported understanding"
+    },
+    {
+      "key": "consequenceUnderstanding",
+      "section": "waste",
+      "title": "How clear was the link between your choices and the waste recorded in the story?",
+      "low": "Not clear",
+      "high": "Very clear",
+      "labels": [
+        "Not clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Clear",
+        "Very clear"
+      ],
+      "highMeaning": "Greater perceived clarity of waste consequences"
+    },
+    {
+      "key": "wasteConfidence",
+      "section": "waste",
+      "title": "How confident are you in choosing a way to reduce waste in your daily routine?",
+      "low": "Not confident",
+      "high": "Extremely confident",
+      "labels": [
+        "Not confident",
+        "Slightly confident",
+        "Moderately confident",
+        "Very confident",
+        "Extremely confident"
+      ],
+      "highMeaning": "Greater self-reported confidence"
+    },
+    {
+      "key": "dailyRelevance",
+      "section": "waste",
+      "title": "How relevant were the waste-related situations to your student life?",
+      "low": "Not relevant",
+      "high": "Extremely relevant",
+      "labels": [
+        "Not relevant",
+        "Slightly relevant",
+        "Moderately relevant",
+        "Very relevant",
+        "Extremely relevant"
+      ],
+      "highMeaning": "Greater perceived relevance"
+    },
+    {
+      "key": "reuseIntention",
+      "section": "waste",
+      "title": "How likely are you to bring a reusable item when you next need one?",
+      "low": "Very unlikely",
+      "high": "Very likely",
+      "labels": [
+        "Very unlikely",
+        "Unlikely",
+        "Neither likely nor unlikely",
+        "Likely",
+        "Very likely"
+      ],
+      "highMeaning": "Stronger stated reuse intention",
+      "context": "For example, a cup, bottle, container or shopping bag. Rate your current intention, even if this is already a habit."
+    },
+    {
+      "key": "foodPlanningIntention",
+      "section": "waste",
+      "title": "How likely are you to plan your next meal portion to avoid leftovers?",
+      "low": "Very unlikely",
+      "high": "Very likely",
+      "labels": [
+        "Very unlikely",
+        "Unlikely",
+        "Neither likely nor unlikely",
+        "Likely",
+        "Very likely"
+      ],
+      "highMeaning": "Stronger stated food-planning intention"
+    },
+    {
+      "key": "ease",
+      "section": "interface",
+      "title": "How easy was it to choose with your hand?",
+      "low": "Very difficult",
+      "high": "Very easy",
+      "labels": [
+        "Very difficult",
+        "Difficult",
+        "Neither easy nor difficult",
+        "Easy",
+        "Very easy"
+      ],
+      "highMeaning": "Greater ease"
+    },
+    {
+      "key": "responsiveness",
+      "section": "interface",
+      "title": "How responsive did the cursor feel when you moved your hand?",
+      "low": "Very unresponsive",
+      "high": "Very responsive",
+      "labels": [
+        "Very unresponsive",
+        "Unresponsive",
+        "Neither responsive nor unresponsive",
+        "Responsive",
+        "Very responsive"
+      ],
+      "highMeaning": "Greater perceived responsiveness"
+    },
+    {
+      "key": "selectionAccuracy",
+      "section": "interface",
+      "title": "How often did the game select the option you intended?",
+      "low": "Never",
+      "high": "Always",
+      "labels": [
+        "Never",
+        "Rarely",
+        "Sometimes",
+        "Often",
+        "Always"
+      ],
+      "highMeaning": "Greater self-reported selection accuracy"
+    },
+    {
+      "key": "feedback",
+      "section": "interface",
+      "title": "How clear was the feedback that your pinch had selected an option?",
+      "low": "Not clear",
+      "high": "Very clear",
+      "labels": [
+        "Not clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Clear",
+        "Very clear"
+      ],
+      "highMeaning": "Greater perceived selection-feedback clarity"
+    },
+    {
+      "key": "fatigue",
+      "section": "interface",
+      "title": "How tired does your arm feel?",
+      "low": "Not tired",
+      "high": "Very tired",
+      "labels": [
+        "Not tired",
+        "A little tired",
+        "Moderately tired",
+        "Tired",
+        "Very tired"
+      ],
+      "highMeaning": "More arm fatigue"
+    },
+    {
+      "key": "coherence",
+      "section": "interface",
+      "title": "How connected did the story feel?",
+      "low": "Not connected",
+      "high": "Very connected",
+      "labels": [
+        "Not connected",
+        "Slightly connected",
+        "Moderately connected",
+        "Connected",
+        "Very connected"
+      ],
+      "highMeaning": "Greater perceived story connection"
+    },
+    {
+      "key": "clarity",
+      "section": "interface",
+      "title": "How clear were the end-of-day outcomes?",
+      "low": "Not clear",
+      "high": "Very clear",
+      "labels": [
+        "Not clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Clear",
+        "Very clear"
+      ],
+      "highMeaning": "Greater perceived outcome clarity",
+      "context": "Think about the outcomes shown after your choices in the story."
+    },
+    {
+      "key": "engagement",
+      "section": "interface",
+      "title": "How engaging was the experience of playing the story?",
+      "low": "Not engaging",
+      "high": "Extremely engaging",
+      "labels": [
+        "Not engaging",
+        "Slightly engaging",
+        "Moderately engaging",
+        "Very engaging",
+        "Extremely engaging"
+      ],
+      "highMeaning": "Greater self-reported engagement"
+    }
+  ]
+}
