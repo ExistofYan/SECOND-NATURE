@@ -25,6 +25,11 @@ function almostFinished(kind:'play'|'research'='play',probes=false){
  while(s.nextSceneIndex<s.modelSnapshot.length-1){const v=openVisit(s);s=commitChoice(s,v.visitId,availableChoices(s)[0].id,{decisionActiveMs:1000,decisionWallMs:1000,pausedMs:0});}
  s.studyPhase='story';return s;
 }
+function completedLegacy(){
+ const s=almostFinished(),v=openVisit(s);
+ const completed=commitChoice(s,v.visitId,'keep',{decisionActiveMs:1000,decisionWallMs:1000,pausedMs:0});
+ completed.studyPhase='summary';completed.appVersion='1.2.0';return completed;
+}
 
 it.each(['play','research'] as const)('records four fresh gesture ratings after %s and includes those answers in the PDF',async kind=>{
  const pinia=createPinia(),nav=useGestureNavStore(pinia),game=useStoryGame(pinia);
@@ -88,4 +93,48 @@ it('rejects out-of-range, fractional, unknown and duplicate ratings',()=>{
  expect(game.rating('unknown',3)).toBe(false);expect(game.session!.ratings).toEqual({});
  expect(game.rating('ease',2)).toBe(true);expect(game.rating('ease',5)).toBe(false);
  expect(game.session!.ratings.ease).toBe(2);
+});
+
+it.each(['view','resume'] as const)('opens unanswered feedback from a legacy completed day via %s without replacing its original data',entry=>{
+ const game=useStoryGame(),s=completedLegacy(),original=JSON.parse(JSON.stringify(s));game.sessions.push(s);
+ expect(game.canContinue).toBe(true);
+ if(entry==='view')game.showSession(s);else game.continueSession(s.sessionId);
+ expect(game.page).toBe('ratings');expect(game.session!.ratings).toEqual({});
+ expect(game.session!.sessionId).toBe(original.sessionId);expect(game.session!.appVersion).toBe('1.2.0');
+ expect(game.session!.visits).toEqual(original.visits);expect(game.session!.endedAt).toBe(original.endedAt);
+ expect(game.session!.events.slice(0,original.events.length)).toEqual(original.events);
+ const opened=game.session!.events[game.session!.events.length-1];
+ expect(opened.type).toBe('ratings_opened');
+ expect(opened.payload.storyEndedAt).toBe(original.endedAt);
+});
+
+it('provides a visible gesture entry from results that are already open',async()=>{
+ const pinia=createPinia(),nav=useGestureNavStore(pinia),game=useStoryGame(pinia);
+ vi.spyOn(nav,'enable').mockResolvedValue(undefined);
+ app=createApp(App);app.use(pinia);app.mount('#app');
+ const s=completedLegacy();game.sessions.push(s);game.session=s;game.setPage('summary');await nextTick();
+ const target=document.querySelector<HTMLButtonElement>('.open-feedback')!;
+ expect(target.textContent).toContain('Rate my experience');
+ expect(document.querySelector('.feedback-banner')?.textContent).toContain('0 / 4 answered');
+ Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
+ nav.running=true;nav.pointerActive=true;nav.pinching=false;nav.awaitingRelease=false;nav.frameId++;await nextTick();
+ nav.awaitingRelease=false;nav.frameId++;await nextTick();
+ nav.pinching=true;nav.pressId++;nav.frameId++;await nextTick();
+ expect(game.page).toBe('ratings');expect(document.querySelectorAll('[data-rating-value]')).toHaveLength(5);
+});
+
+it('routes an old final caption to ratings even if its stored next page is summary',async()=>{
+ const game=useStoryGame(),s=completedLegacy(),v=s.visits[s.visits.length-1];
+ s.pendingTransition={visitId:v.visitId,sceneId:v.sceneId,feedback:'Your final choice is saved.'};
+ game.sessions.push(s);game.continueSession(s.sessionId);
+ expect(game.page).toBe('story');expect(game.transition).toBe('reading');
+ const next=game.continueTransition();await vi.advanceTimersByTimeAsync(600);await next;
+ expect(game.page).toBe('ratings');expect(game.session!.studyPhase).toBe('ratings');
+});
+
+it('leaves incomplete days and already-rated days available as results without new ratings',()=>{
+ const game=useStoryGame(),partial=almostFinished();game.sessions.push(partial);game.showSession(partial);
+ expect(game.page).toBe('summary');expect(game.feedbackPending).toBe(false);expect(game.openRatings()).toBe(false);
+ const rated=completedLegacy();rated.ratings={ease:2,fatigue:4,coherence:5,clarity:3};game.sessions.push(rated);game.showSession(rated);
+ expect(game.page).toBe('summary');expect(game.feedbackPending).toBe(false);expect(game.ratingCount).toBe(4);
 });

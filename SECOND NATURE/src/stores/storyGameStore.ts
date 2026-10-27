@@ -5,10 +5,12 @@ import { createSession, availableChoices, commitChoice, openVisit, markReady, lo
 import { loadSessions, saveSessions } from '../services/storyStorageService';
 import { prepareArt } from '../services/storyAssetService';
 import { isRatingValue, ratingQuestions } from '../data/story/probes';
+import { APP_VERSION } from '../config/interaction';
 export type Page='cover'|'consent'|'practice'|'pre'|'story'|'post'|'ratings'|'summary'|'sessions';
 export type Transition='interactive'|'committing'|'aftermath'|'fadeOut'|'blackHold'|'reading'|'fadeIn'|'awaitingRelease';
 const delay=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
-const canResume=(s:Session)=>s.pendingTransition||s.status==='active'||s.status==='interrupted'||s.studyPhase==='ratings'||s.kind==='research'&&s.studyPhase!=='summary';
+const needsFeedback=(s:Session)=>s.status==='completed'&&ratingQuestions.some(q=>!isRatingValue(s.ratings[q.key]));
+const canResume=(s:Session)=>s.pendingTransition||s.status==='active'||s.status==='interrupted'||s.studyPhase==='ratings'||needsFeedback(s)||s.kind==='research'&&s.studyPhase!=='summary';
 export const useStoryGame=defineStore('story',()=>{
   const session=ref<Session|null>(null), sessions=ref<Session[]>([]), page=ref<Page>('cover'),transition=ref<Transition>('interactive');
   const modal=ref<'pause'|'backpack'|'help'|null>(null),saveError=ref(''),degraded=ref(false),aftermath=ref(''),summaryPage=ref(0),motion=ref(matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -19,6 +21,8 @@ export const useStoryGame=defineStore('story',()=>{
   const choices=computed(()=>session.value?availableChoices(session.value):[]);
   const visit=computed(()=>session.value?.visits.find(v=>v.sceneId===currentScene.value?.id&&!v.selectedChoiceId)??null);
   const canContinue=computed(()=>sessions.value.some(canResume));
+  const ratingCount=computed(()=>ratingQuestions.filter(q=>isRatingValue(session.value?.ratings[q.key])).length);
+  const feedbackPending=computed(()=>!!session.value&&needsFeedback(session.value));
   const inputAllowed=computed(()=>!['committing','aftermath','fadeOut','blackHold','fadeIn'].includes(transition.value));
   function save(){if(!session.value)return;const i=sessions.value.findIndex(s=>s.sessionId===session.value!.sessionId);if(i<0)sessions.value.push(session.value);else sessions.value[i]=session.value;try{saveSessions(sessions.value);saveError.value='';}catch{saveError.value='This session is in memory only. Device storage failed. Export the report before closing this page.';}}
   function event(type:string,payload:Record<string,unknown>={}){if(session.value)log(session.value,type,payload,visit.value);}
@@ -67,10 +71,14 @@ export const useStoryGame=defineStore('story',()=>{
     log(session.value,'transition_acknowledged',{from:pending.sceneId},committed);
     delete session.value.pendingTransition;save();
     if(session.value.nextSceneIndex>=session.value.modelSnapshot.length){
-      page.value=session.value.studyPhase as Page;transition.value='fadeIn';await delay(motion.value?80:450);
+      const next=session.value.studyPhase==='post'?'post':needsFeedback(session.value)?'ratings':'summary';
+      if(next==='ratings')openRatings('story_end');
+      else {session.value.studyPhase=next;page.value=next;}
+      transition.value='fadeIn';await delay(motion.value?80:450);
       if(token!==animationToken)return;transition.value='awaitingRelease';
     }else if(!await prepareScene())return;
-    if(session.value?.sessionId!==sessionId||page.value==='cover')return;
+    // Navigation actions can change the page while an animation is awaited.
+    if(session.value?.sessionId!==sessionId||(page.value as Page)==='cover')return;
     // Reading time belongs to neither decision time nor animation time.
     committed.animationMs+=performance.now()-started;
     log(session.value,'transition_completed',{from:pending.sceneId,animationMs:committed.animationMs},committed);save();
@@ -87,6 +95,7 @@ export const useStoryGame=defineStore('story',()=>{
       event('session_resumed',{pendingTransition:true});save();return;
     }
     if(['active','interrupted'].includes(session.value!.status)){session.value!.status='interrupted';event('session_interrupted',{reason:'page_reload_or_return'});session.value!.status='active';event('session_resumed');const v=visit.value;if(v){v.timingInterrupted=true;const ve=session.value!.events.filter(e=>e.sceneVisitId===v.visitId);const lastReady=ve.filter(e=>e.type==='scene_ready').slice(-1)[0];const lastClosed=ve.filter(e=>e.type==='decision_segment_closed').slice(-1)[0];if(lastReady && (!lastClosed||lastReady.seq>lastClosed.seq))v.timingMissing=true;}page.value=session.value!.studyPhase as Page;if(page.value==='story')void prepareScene();else transition.value='awaitingRelease';}
+    else if(needsFeedback(session.value!)&&session.value!.studyPhase!=='post')openRatings('resume');
     else {page.value=session.value!.studyPhase as Page;transition.value='awaitingRelease';}
     save();
   }
@@ -99,9 +108,19 @@ export const useStoryGame=defineStore('story',()=>{
     event('rating_submitted',{key,value,question:question.title,low:question.low,high:question.high,label:question.labels[value-1]});
     save();return true;
   }
+  function openRatings(source='results'){
+    if(!session.value||!needsFeedback(session.value))return false;
+    event('ratings_opened',{source,answered:ratingCount.value,storyEndedAt:session.value.endedAt,appVersion:APP_VERSION});
+    setPage('ratings');return true;
+  }
   function probe(phase:string,set:string,questionId:string,choiceId:string,correct:boolean){if(session.value){session.value.probes.push({phase,set,questionId,choiceId,correct});event('probe_answered',{phase,set,questionId,choiceId,correct});save();}}
   function setPage(next:Page){page.value=next;modal.value=null;if(session.value){session.value.studyPhase=next;save();}transition.value='awaitingRelease';if(next==='story')void prepareScene();}
   function hidden(){if(page.value==='story'){pause('page_hidden');closeClock();modal.value='pause';event('session_interrupted',{reason:'page_hidden'});save();}}
-  function showSession(s:Session){animationToken++;session.value=s;page.value='summary';summaryPage.value=0;transition.value='awaitingRelease';}
-  return {session,sessions,page,transition,modal,saveError,degraded,aftermath,summaryPage,motion,pauseReasons,displayedIndex,currentScene,choices,visit,canContinue,inputAllowed,save,event,start,practiceDone,pause,removePause,openModal,resume,prepareScene,releaseReady,choose,continueTransition,continueSession,exit,abort,rating,probe,setPage,hidden,showSession};
+  function showSession(s:Session){
+    animationToken++;session.value=s;summaryPage.value=0;
+    if(s.pendingTransition){continueSession(s.sessionId);return;}
+    if(needsFeedback(s)&&s.studyPhase!=='post'){openRatings('saved_day');return;}
+    page.value='summary';transition.value='awaitingRelease';
+  }
+  return {session,sessions,page,transition,modal,saveError,degraded,aftermath,summaryPage,motion,pauseReasons,displayedIndex,currentScene,choices,visit,canContinue,ratingCount,feedbackPending,inputAllowed,save,event,start,practiceDone,pause,removePause,openModal,resume,prepareScene,releaseReady,choose,continueTransition,continueSession,exit,abort,rating,openRatings,probe,setPage,hidden,showSession};
 });

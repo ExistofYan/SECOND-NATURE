@@ -1,4 +1,10 @@
-# Implementation notes - v1.2.2
+# Implementation notes - v1.2.3
+
+## Feedback entry and legacy sessions in 1.2.3
+
+Opening a completed saved day via View / export now opens the next unanswered experience question, rather than silently bypassing feedback. The cover's Continue action also recognizes completed legacy days with missing ratings. The final caption routes to ratings based on the actual missing answers even when an older snapshot stores summary as its next page. Unread final captions and optional research post-checks remain ahead of feedback.
+
+The results pages expose a visible feedback banner and gesture button while answers are missing, and show a saved confirmation after all four. Existing recorded choices, completion time, model/app version and scores are preserved. A timestamped ratings_opened event identifies where the questionnaire was reopened, the current software version and the original story end time, so later feedback can be distinguished from immediate post-game responses. The footer shows v1.2.3 to help identify an outdated running build. Start.cmd opens a versioned URL, and the production build must still be redeployed separately for a hosted website.
 
 ## Post-game feedback in 1.2.2
 

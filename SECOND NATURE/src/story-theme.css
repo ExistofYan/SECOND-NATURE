@@ -86,3 +86,22 @@ body{background:#e5e7e8;color:var(--ink)}
   font-weight: 600;
 }
 .experience-page .rating-context { font-size: 18px; }
+.feedback-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 18px;
+  background: #edf2e8;
+  border: 2px solid #5c7282;
+  border-radius: 8px;
+}
+.feedback-banner b { font-size: 21px; }
+.feedback-banner p { margin-top: 5px; font-size: 17px; line-height: 1.35; }
+.feedback-banner .pinch-button { min-height: 64px; flex: none; font-size: 21px; }
+.feedback-done { border-width: 1px; background: #f6f7f0; }
+.status-bar .app-version { margin-left: 10px; font-size: 12px; opacity: .8; }
+@media (max-width: 760px) {
+  .feedback-banner { flex-wrap: wrap; }
+  .feedback-banner .pinch-button { width: 100%; }
+}

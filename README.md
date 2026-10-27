@@ -22,6 +22,8 @@ The story follows breakfast, the journey to school, classes, shopping and an eve
 6. Read the black caption panel, then **point and pinch Continue** when ready.
 7. After the final scene, answer four experience questions by **pointing and pinching a score from 1 to 5**. Each answer is saved immediately and included in your PDF report. You can save and finish the questions later.
 
+Already finished an earlier version? Open **Saved days → View / export** to complete any missing ratings. A **Rate my experience** button is also available on results pages while answers are missing.
+
 Camera images are processed on your device and are not recorded.
 
 Use one hand at a time to choose. Switching hands requires opening your fingers before a fresh pinch.

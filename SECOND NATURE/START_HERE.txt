@@ -1,4 +1,4 @@
-SECOND NATURE 1.2.0 - NARRATIVE ART AND TWO-HAND TRACKING
+SECOND NATURE 1.2.3 - GESTURE FEEDBACK AND PDF REPORT
 
 Open the folder containing package.json. Run npm ci if needed, then npm run dev.
 Open the displayed localhost URL and allow the camera.
@@ -8,8 +8,13 @@ After each choice, the black story caption waits for you. Read it, then point an
 Choice cards show a single large label. There is no reading or answer countdown.
 
 READY BUILD: Run .\Start.cmd if Python is installed.
+The footer should show v1.2.3. If it does not, refresh with Ctrl+Shift+R.
+After the last scene, choose Rate my experience on the final caption.
+For a completed older day, open Saved days, then View / export to answer the four questions.
+The results page also offers Rate my experience while answers are missing.
+Each 1-5 gesture rating is saved immediately and included in the PDF.
 NETLIFY UPDATE: Upload the complete dist folder in your existing project Deploys page.
 Include index.html and all assets, mediapipe, models and art subfolders.
 
-51 automated tests, TypeScript, production build and DOM startup checks passed.
+Run npm test and npm run build for automated checks and a fresh production build.
 Actual camera tracking and gesture comfort still need checking on the intended device.
