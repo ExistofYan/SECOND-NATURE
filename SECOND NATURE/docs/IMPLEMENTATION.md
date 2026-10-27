@@ -1,4 +1,10 @@
-# Implementation notes - v1.2.1
+# Implementation notes - v1.2.2
+
+## Post-game feedback in 1.2.2
+
+After the final reading panel, both free play and research sessions enter four gesture-only experience questions: selection ease, arm fatigue, story connection and outcome clarity. Optional research post-checks still precede the ratings. Every score from 1 to 5 has a visible meaning; selection requires a fresh pinch, with no typing or timeout. Responses are saved immediately with a timestamped event containing the question wording, scale endpoints and selected label. Rating values are validated and a submitted answer cannot be overwritten by a repeated input.
+
+The next unanswered question is derived from the saved session. Completed-story sessions with unfinished ratings remain resumable from the cover and saved-days list. After all four answers, the normal results and PDF export follow. The PDF shows each rating as n / 5, its scale, and how many of the four questions were answered; the raw session and timestamped events remain embedded. Fatigue is reported in its original direction (higher means more tired), and no combined or SUS score is created. Existing records remain unchanged; uncollected answers are shown as missing.
 
 
 ## Model

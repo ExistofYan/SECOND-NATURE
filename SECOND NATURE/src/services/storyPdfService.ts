@@ -1,7 +1,7 @@
 import { analyze, reflections } from '../domain/story/storyAnalysis';
 import { selectedChoice, travelSummary } from '../domain/story/storyNarrative';
 import type { Session } from '../domain/story/types';
-import { ratingQuestions, probeSets } from '../data/story/probes';
+import { isRatingValue, ratingQuestions, probeSets } from '../data/story/probes';
 import { ReportPdf } from './reportPdf';
 import { storyFiles } from './storyReportData';
 
@@ -105,7 +105,10 @@ export function buildStoryPdf(s: Session, previous: Session | null = null): Uint
   pdf.page('Research responses');
   pdf.heading('What you actually reported');
   pdf.paragraph('Only submitted responses appear as data. Missing values stay missing; no interview statements or researcher observations are inferred.');
-  pdf.table(['Experience rating', 'Response', 'Scale: 1 to 5'], ratingQuestions.map(r => [r.title, safe(s.ratings[r.key]), `${r.low} to ${r.high}`]), [248, 65, pdf.contentWidth - 313], 'Experience responses');
+  pdf.heading('Your four experience ratings', 14);
+  pdf.paragraph(`${ratingQuestions.filter(r=>isRatingValue(s.ratings[r.key])).length} of ${ratingQuestions.length} ratings submitted. Scores were selected using the in-game gesture controls.`, 9);
+  pdf.table(['Experience rating', 'Response', 'Scale: 1 to 5'], ratingQuestions.map(r => [r.title, isRatingValue(s.ratings[r.key])?`${s.ratings[r.key]} / 5`:'Not recorded', `${r.low} to ${r.high}`]), [248, 65, pdf.contentWidth - 313], 'Experience responses');
+  pdf.paragraph('For arm fatigue, a higher score means more tiredness. For the other three questions, a higher score means greater ease, connection or clarity. Scores are reported separately, without a combined total.', 9);
   pdf.paragraph('These four custom single-item ratings are not a SUS questionnaire or a validated combined score.', 9);
   if (s.probes.length) {
     pdf.heading('Knowledge-check responses');

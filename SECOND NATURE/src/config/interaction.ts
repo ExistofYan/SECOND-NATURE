@@ -37,6 +37,6 @@ export function configSnapshot(): Record<string, number | string | boolean> {
   return { ...interactionConfig };
 }
 
-export const APP_VERSION = "1.2.1";
+export const APP_VERSION = "1.2.2";
 export const STORAGE_KEY = "ecosort:sessions:v1";
 export const SCHEMA_VERSION = 1 as const;

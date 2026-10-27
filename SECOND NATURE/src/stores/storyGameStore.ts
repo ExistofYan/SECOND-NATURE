@@ -4,9 +4,11 @@ import type { Session, SceneVisit, Timing } from '../domain/story/types';
 import { createSession, availableChoices, commitChoice, openVisit, markReady, log, DecisionClock, newTimingSegment } from '../domain/story/sceneEngine';
 import { loadSessions, saveSessions } from '../services/storyStorageService';
 import { prepareArt } from '../services/storyAssetService';
+import { isRatingValue, ratingQuestions } from '../data/story/probes';
 export type Page='cover'|'consent'|'practice'|'pre'|'story'|'post'|'ratings'|'summary'|'sessions';
 export type Transition='interactive'|'committing'|'aftermath'|'fadeOut'|'blackHold'|'reading'|'fadeIn'|'awaitingRelease';
 const delay=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
+const canResume=(s:Session)=>s.pendingTransition||s.status==='active'||s.status==='interrupted'||s.studyPhase==='ratings'||s.kind==='research'&&s.studyPhase!=='summary';
 export const useStoryGame=defineStore('story',()=>{
   const session=ref<Session|null>(null), sessions=ref<Session[]>([]), page=ref<Page>('cover'),transition=ref<Transition>('interactive');
   const modal=ref<'pause'|'backpack'|'help'|null>(null),saveError=ref(''),degraded=ref(false),aftermath=ref(''),summaryPage=ref(0),motion=ref(matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -16,7 +18,7 @@ export const useStoryGame=defineStore('story',()=>{
   const currentScene=computed(()=>session.value?.modelSnapshot[session.value.nextSceneIndex]??null);
   const choices=computed(()=>session.value?availableChoices(session.value):[]);
   const visit=computed(()=>session.value?.visits.find(v=>v.sceneId===currentScene.value?.id&&!v.selectedChoiceId)??null);
-  const canContinue=computed(()=>sessions.value.some(s=>s.pendingTransition||s.status==='active'||s.status==='interrupted'||s.kind==='research'&&s.studyPhase!=='summary'));
+  const canContinue=computed(()=>sessions.value.some(canResume));
   const inputAllowed=computed(()=>!['committing','aftermath','fadeOut','blackHold','fadeIn'].includes(transition.value));
   function save(){if(!session.value)return;const i=sessions.value.findIndex(s=>s.sessionId===session.value!.sessionId);if(i<0)sessions.value.push(session.value);else sessions.value[i]=session.value;try{saveSessions(sessions.value);saveError.value='';}catch{saveError.value='This session is in memory only. Device storage failed. Export the report before closing this page.';}}
   function event(type:string,payload:Record<string,unknown>={}){if(session.value)log(session.value,type,payload,visit.value);}
@@ -74,8 +76,9 @@ export const useStoryGame=defineStore('story',()=>{
     log(session.value,'transition_completed',{from:pending.sceneId,animationMs:committed.animationMs},committed);save();
   }
   function continueSession(id?:string){
-    const found=id?sessions.value.find(s=>s.sessionId===id):[...sessions.value].reverse().find(s=>s.pendingTransition||s.status==='active'||s.status==='interrupted'||s.kind==='research'&&s.studyPhase!=='summary');if(!found)return;
+    const found=id?sessions.value.find(s=>s.sessionId===id):[...sessions.value].reverse().find(canResume);if(!found)return;
     animationToken++;session.value=JSON.parse(JSON.stringify(found));newTimingSegment();clock=null;pauseReasons.value=[];modal.value=null;
+    if(session.value!.studyPhase==='ratings'&&ratingQuestions.every(q=>isRatingValue(session.value!.ratings[q.key])))session.value!.studyPhase='summary';
     if(session.value!.pendingTransition){
       const pending=session.value!.pendingTransition;
       displayedIndex.value=session.value!.modelSnapshot.findIndex(s=>s.id===pending.sceneId);
@@ -89,7 +92,13 @@ export const useStoryGame=defineStore('story',()=>{
   }
   function exit(){animationToken++;closeClock();if(session.value&&session.value.status!=='completed'){session.value.status='interrupted';event('session_interrupted',{reason:'ended_and_saved'});}save();modal.value=null;pauseReasons.value=[];page.value='cover';transition.value='awaitingRelease';}
   function abort(){animationToken++;closeClock();if(session.value){delete session.value.pendingTransition;session.value.status='aborted';session.value.endedAt=new Date().toISOString();event('session_aborted');}save();modal.value=null;pauseReasons.value=[];page.value='summary';transition.value='awaitingRelease';}
-  function rating(key:string,value:number){if(session.value){session.value.ratings[key]=value;event('rating_submitted',{key,value});save();}}
+  function rating(key:string,value:number){
+    const question=ratingQuestions.find(q=>q.key===key);
+    if(!session.value||page.value!=='ratings'||!question||!isRatingValue(value)||isRatingValue(session.value.ratings[key]))return false;
+    session.value.ratings[key]=value;
+    event('rating_submitted',{key,value,question:question.title,low:question.low,high:question.high,label:question.labels[value-1]});
+    save();return true;
+  }
   function probe(phase:string,set:string,questionId:string,choiceId:string,correct:boolean){if(session.value){session.value.probes.push({phase,set,questionId,choiceId,correct});event('probe_answered',{phase,set,questionId,choiceId,correct});save();}}
   function setPage(next:Page){page.value=next;modal.value=null;if(session.value){session.value.studyPhase=next;save();}transition.value='awaitingRelease';if(next==='story')void prepareScene();}
   function hidden(){if(page.value==='story'){pause('page_hidden');closeClock();modal.value='pause';event('session_interrupted',{reason:'page_hidden'});save();}}

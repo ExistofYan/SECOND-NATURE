@@ -67,3 +67,22 @@ body{background:#e5e7e8;color:var(--ink)}
  .story-page .choice-copy b{font-size:23px;line-height:1.2}
 }
 @media(max-width:1099px){.comic-frame{aspect-ratio:16/9;min-height:0;flex:none}.story-page{height:auto;min-height:calc(100dvh - 130px)}}
+
+/* Post-game feedback: large gesture targets with a meaning for every score. */
+.experience-page .rating-options > .pinch-button {
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  height: auto;
+  min-height: 145px;
+  padding: 16px 12px;
+  line-height: 1.2;
+}
+.experience-page .rating-options b { font-size: 40px; }
+.experience-page .rating-options small {
+  font-family: inherit;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+.experience-page .rating-context { font-size: 18px; }

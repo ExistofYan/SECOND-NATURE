@@ -63,7 +63,7 @@ export function commitChoice(source:Session, visitId:string, choiceId:string, ti
   Object.assign(v,timing,{selectedChoiceId:choice.id,submittedAt:new Date().toISOString()});
   log(s,'choice_committed',{choiceCommitId:commitId,choiceId:choice.id,label:choice.label,feedback:choice.aftermath,effects:choice.effects,nextSceneId:s.modelSnapshot[s.nextSceneIndex+1]?.id ?? null,...timing},v);
   s.nextSceneIndex++;
-  if(s.nextSceneIndex===s.modelSnapshot.length){s.status='completed';s.endedAt=new Date().toISOString();s.studyPhase=s.kind==='research'?(s.collectProbes?'post':'ratings'):'summary';log(s,'session_completed');}
+  if(s.nextSceneIndex===s.modelSnapshot.length){s.status='completed';s.endedAt=new Date().toISOString();s.studyPhase=s.kind==='research'&&s.collectProbes?'post':'ratings';log(s,'session_completed');}
   return s;
 }
 export function replayItems(s:Session): Item[] {const map=new Map(s.initialInventory.map(i=>[i.itemId,clone(i)]));for(const e of s.events) if(e.type.startsWith('item_') && e.payload.item){ const i=e.payload.item as Item;map.set(i.itemId,clone(i));}return [...map.values()];}

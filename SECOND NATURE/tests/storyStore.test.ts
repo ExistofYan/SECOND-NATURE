@@ -11,7 +11,7 @@ it('atomically saves the next checkpoint but keeps old artwork until black, then
 it('marks lost timing as missing after an abrupt refresh, without losing committed items',async()=>{const game=await ready();game.continueSession(game.session!.sessionId);await vi.advanceTimersByTimeAsync(600);expect(game.visit!.timingMissing).toBe(true);game.releaseReady();const promise=game.choose('extra');await vi.advanceTimersByTimeAsync(2200);await promise;expect(game.session!.visits[0].decisionActiveMs).toBe(null);expect(game.session!.items.filter(i=>i.itemId==='breakfast-extra')).toHaveLength(1);expect(game.session!.events.some(e=>e.type==='session_resumed')).toBe(true);});
 it('preserves known fragments across a deliberate pause and return',async()=>{const game=await ready();await vi.advanceTimersByTimeAsync(1000);game.exit();game.continueSession(game.session!.sessionId);await vi.advanceTimersByTimeAsync(600);expect(game.visit!.timingMissing).not.toBe(true);game.releaseReady();await vi.advanceTimersByTimeAsync(500);const p=game.choose('one');await vi.advanceTimersByTimeAsync(2200);await p;expect(game.session!.visits[0].decisionActiveMs).toBe(1500);});
 it('reports a storage failure and retains the session in memory for export',()=>{const game=useStoryGame();vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('quota');});game.start();expect(game.saveError).toContain('in memory only');expect(game.session!.sessionId).toBeTruthy();});
-it('shows the seventeenth scene before finishing and reaches the summary after its choice',async()=>{
+it('shows the seventeenth scene before finishing and reaches feedback after its choice',async()=>{
  const game=useStoryGame();let session=createSession();
  while(session.nextSceneIndex<session.modelSnapshot.length-2){const v=openVisit(session);session=commitChoice(session,v.visitId,availableChoices(session)[0].id,{decisionActiveMs:1,decisionWallMs:1,pausedMs:0});}
  session.studyPhase='story';game.sessions.push(session);game.continueSession(session.sessionId);
@@ -21,7 +21,7 @@ it('shows the seventeenth scene before finishing and reaches the summary after i
  expect(game.page).toBe('story');expect(game.currentScene!.id).toBe('S16');expect(game.displayedIndex).toBe(16);
  game.releaseReady();const tidy=game.choose('keep');await vi.advanceTimersByTimeAsync(500);await tidy;
  expect(game.page).toBe('story');expect(game.transition).toBe('reading');const summary=game.continueTransition();await vi.advanceTimersByTimeAsync(600);await summary;
- expect(game.page).toBe('summary');expect(game.session!.status).toBe('completed');expect(game.session!.visits).toHaveLength(17);
+ expect(game.page).toBe('ratings');expect(game.session!.status).toBe('completed');expect(game.session!.visits).toHaveLength(17);
 });
 
 it('holds the black caption without a timer in both fade settings and excludes reading from animation time',async()=>{
@@ -53,7 +53,7 @@ it('restores the final caption even when the last choice already completed the s
  expect(game.session!.status).toBe('completed');expect(game.canContinue).toBe(true);
  game.continueSession(game.session!.sessionId);expect(game.transition).toBe('reading');expect(game.page).toBe('story');
  const next=game.continueTransition();await vi.advanceTimersByTimeAsync(600);await next;
- expect(game.page).toBe('summary');expect(game.session!.pendingTransition).toBeUndefined();
+ expect(game.page).toBe('ratings');expect(game.session!.pendingTransition).toBeUndefined();
 });
 it('does not advance a reading screen while a modal is open or a pause is active',async()=>{
  const game=await ready();const choice=game.choose('one');await vi.advanceTimersByTimeAsync(500);await choice;

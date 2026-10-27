@@ -2,4 +2,12 @@ export const probeSets={
  A:[{id:'A1',text:'A clean shopping bag is still useful. Is keeping it for reuse the same as sending it to recycling now?',answers:['Yes, they are the same action.','No. Keeping it extends its use before collection.'],correct:1},{id:'A2',text:'You bought extra fruit that is still edible at the end of the day. What should the record show?',answers:['Edible inventory, not food waste yet.','Food waste as soon as it is bought.'],correct:0},{id:'A3',text:'A bottle goes into a recycling collection. Does the number of discarded bottles become zero?',answers:['Yes, recycling cancels the discarded item.','No, it is still a discarded item in collection.'],correct:1}],
  B:[{id:'B1',text:'An intact folder can be used next term. How is keeping it different from recycling it today?',answers:['Keeping extends use; recycling sends it to collection.','Both mean the folder was discarded today.'],correct:0},{id:'B2',text:'One dinner portion is safely stored for tomorrow. What is its status tonight?',answers:['Already eaten.','Saved for later, not food waste tonight.'],correct:1},{id:'B3',text:'You acquire two disposable cups and send both to recycling collection. How many cups were acquired?',answers:['Two, even though they entered recycling collection.','Zero, because recycling removed them from the count.'],correct:0}],
 };
-export const ratingQuestions=[{key:'ease',title:'How easy was it to choose with your hand?',low:'Very difficult',high:'Very easy'},{key:'fatigue',title:'How tired does your arm feel?',low:'Not tired',high:'Very tired'},{key:'coherence',title:'How connected did the story feel?',low:'Not connected',high:'Very connected'},{key:'clarity',title:'How clear were the end-of-day outcomes?',low:'Not clear',high:'Very clear'}];
+export const ratingQuestions=[
+ {key:'ease',title:'How easy was it to choose with your hand?',low:'Very difficult',high:'Very easy',labels:['Very difficult','Difficult','Neither easy nor difficult','Easy','Very easy']},
+ {key:'fatigue',title:'How tired does your arm feel?',low:'Not tired',high:'Very tired',labels:['Not tired','A little tired','Moderately tired','Tired','Very tired']},
+ {key:'coherence',title:'How connected did the story feel?',low:'Not connected',high:'Very connected',labels:['Not connected','Slightly connected','Moderately connected','Connected','Very connected']},
+ {key:'clarity',title:'How clear were the end-of-day outcomes?',low:'Not clear',high:'Very clear',labels:['Not clear','Slightly clear','Moderately clear','Clear','Very clear']},
+];
+export function isRatingValue(value:unknown):value is number {
+ return typeof value==='number'&&Number.isInteger(value)&&value>=1&&value<=5;
+}

@@ -20,6 +20,7 @@ The story follows breakfast, the journey to school, classes, shopping and an eve
 4. **Pinch** your thumb and index finger to choose.
 5. **Release** before making your next choice.
 6. Read the black caption panel, then **point and pinch Continue** when ready.
+7. After the final scene, answer four experience questions by **pointing and pinching a score from 1 to 5**. Each answer is saved immediately and included in your PDF report. You can save and finish the questions later.
 
 Camera images are processed on your device and are not recorded.
 

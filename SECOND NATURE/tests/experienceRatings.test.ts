@@ -1,0 +1,91 @@
+// @vitest-environment jsdom
+import {afterEach,beforeEach,expect,it,vi} from 'vitest';
+import {createApp,nextTick,type App as VueApp} from 'vue';
+import {createPinia,setActivePinia} from 'pinia';
+import App from '../src/App.vue';
+import {useGestureNavStore} from '../src/stores/gestureNavStore';
+import {useStoryGame} from '../src/stores/storyGameStore';
+import {createSession,openVisit,commitChoice,availableChoices} from '../src/domain/story/sceneEngine';
+import {ratingQuestions} from '../src/data/story/probes';
+import {STORY_KEY} from '../src/services/storyStorageService';
+import {buildStoryPdf} from '../src/services/storyPdfService';
+import {resetGestureHitTest} from '../src/services/gestureHitTest';
+
+let app:VueApp|null=null;
+beforeEach(()=>{
+ vi.useFakeTimers();localStorage.clear();resetGestureHitTest();document.body.innerHTML='<div id="app"></div>';
+ setActivePinia(createPinia());
+ vi.stubGlobal('matchMedia',()=>({matches:false}));
+ vi.stubGlobal('Image',class{onload:(()=>void)|null=null;set src(_v:string){queueMicrotask(()=>this.onload?.());}});
+});
+afterEach(()=>{app?.unmount();app=null;vi.useRealTimers();vi.unstubAllGlobals();vi.restoreAllMocks();});
+
+function almostFinished(kind:'play'|'research'='play',probes=false){
+ let s=createSession(kind,kind==='research'?'P01':null,null,false,probes);
+ while(s.nextSceneIndex<s.modelSnapshot.length-1){const v=openVisit(s);s=commitChoice(s,v.visitId,availableChoices(s)[0].id,{decisionActiveMs:1000,decisionWallMs:1000,pausedMs:0});}
+ s.studyPhase='story';return s;
+}
+
+it.each(['play','research'] as const)('records four fresh gesture ratings after %s and includes those answers in the PDF',async kind=>{
+ const pinia=createPinia(),nav=useGestureNavStore(pinia),game=useStoryGame(pinia);
+ vi.spyOn(nav,'enable').mockResolvedValue(undefined);
+ app=createApp(App);app.use(pinia);app.mount('#app');
+ const session=almostFinished(kind);game.sessions.push(session);game.continueSession(session.sessionId);
+ await vi.advanceTimersByTimeAsync(600);game.releaseReady();
+ const finish=game.choose('keep');await vi.advanceTimersByTimeAsync(500);await finish;
+ expect(game.page).toBe('story');expect(game.transition).toBe('reading');
+ const next=game.continueTransition();await vi.advanceTimersByTimeAsync(600);await next;await nextTick();
+ expect(game.page).toBe('ratings');expect(document.querySelectorAll('[data-rating-value]')).toHaveLength(5);
+ expect(document.querySelector('input,textarea')).toBeNull();
+ nav.running=true;nav.pointerActive=true;
+ let target:Element|null=null;
+ Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
+ const scores=[2,4,5,3];
+ for(let i=0;i<ratingQuestions.length;i++){
+  expect(document.querySelector('.experience-page h1')?.textContent).toBe(ratingQuestions[i].title);
+  target=document.querySelector(`[data-rating-value="${scores[i]}"]`);
+  expect(target?.textContent).toContain(ratingQuestions[i].labels[scores[i]-1]);
+  // Native mouse click does not submit a response.
+  (target as HTMLButtonElement).click();await nextTick();
+  expect(game.session!.ratings[ratingQuestions[i].key]).toBeUndefined();
+  nav.pinching=false;nav.awaitingRelease=false;nav.frameId++;await nextTick();
+  // The first open frame also unlocks the post-transition screen; a second
+  // stable open frame rearms the gesture before the next actual pinch.
+  nav.awaitingRelease=false;nav.frameId++;await nextTick();
+  nav.pinching=true;nav.pressId++;nav.frameId++;await nextTick();
+  expect(game.session!.ratings[ratingQuestions[i].key]).toBe(scores[i]);
+  expect(game.session!.events.filter(e=>e.type==='rating_submitted')).toHaveLength(i+1);
+  const saved=JSON.parse(localStorage.getItem(STORY_KEY)!)[0];
+  expect(saved.ratings[ratingQuestions[i].key]).toBe(scores[i]);
+  // A held pinch cannot answer the next question.
+  nav.frameId++;await nextTick();
+  expect(game.session!.events.filter(e=>e.type==='rating_submitted')).toHaveLength(i+1);
+  if(i===0){
+   game.exit();expect(game.canContinue).toBe(true);game.continueSession();await nextTick();
+   expect(game.page).toBe('ratings');
+   expect(document.querySelector('.experience-page h1')?.textContent).toBe(ratingQuestions[1].title);
+  }
+ }
+ expect(game.page).toBe('summary');expect(game.session!.studyPhase).toBe('summary');expect(game.canContinue).toBe(false);
+ expect(game.session!.ratings).toEqual({ease:2,fatigue:4,coherence:5,clarity:3});
+ for(const e of game.session!.events.filter(e=>e.type==='rating_submitted')){
+  expect(e.wallTimeISO).toBeTruthy();expect(e.payload.question).toBeTruthy();expect(e.payload.label).toBeTruthy();
+ }
+ const pdf=new TextDecoder().decode(buildStoryPdf(game.session!));
+ expect(pdf).toContain('Your four experience ratings');expect(pdf).toContain('4 of 4 ratings submitted');
+ scores.forEach(n=>expect(pdf).toContain(`(${n} / 5)`));
+});
+
+it('keeps optional research post-checks before the four experience ratings',()=>{
+ const s=almostFinished('research',true),v=openVisit(s);
+ const completed=commitChoice(s,v.visitId,'keep',{decisionActiveMs:1,decisionWallMs:1,pausedMs:0});
+ expect(completed.studyPhase).toBe('post');
+});
+
+it('rejects out-of-range, fractional, unknown and duplicate ratings',()=>{
+ const game=useStoryGame();game.start();game.setPage('ratings');
+ for(const n of [0,6,2.5,NaN])expect(game.rating('ease',n)).toBe(false);
+ expect(game.rating('unknown',3)).toBe(false);expect(game.session!.ratings).toEqual({});
+ expect(game.rating('ease',2)).toBe(true);expect(game.rating('ease',5)).toBe(false);
+ expect(game.session!.ratings.ease).toBe(2);
+});
