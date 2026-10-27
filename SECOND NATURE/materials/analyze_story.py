@@ -83,9 +83,10 @@ def main(paths):
         a = analyze(s)
         writer.writerow([participant or 'none', s['sessionId'], s['kind'], s['status'], bool(is_primary), a['completedScenes'], a['newSingleUse'], a['nonFoodWaste'], a['foodWaste'], identity.get('fullName'), identity.get('studentId'), identity.get('course'), s['startedAt'], s.get('endedAt'), s.get('timeZone')] + [rating_value(s.get('ratings', {}).get(q['key'])) for q in questions])
         if is_primary and s['status'] == 'completed':
-            primary[s['modelVersion']].append((a, s))
-    for version, rows in primary.items():
-        print('\nFirst completed primary research records only; partial first records remain in the table. Model =', version, 'n =', len(rows), file=sys.stderr)
+            instruments = tuple(sorted({e['payload'].get('instrumentVersion', 'legacy/unversioned') for e in s['events'] if e['type'] == 'rating_submitted'})) or ('unversioned',)
+            primary[(s['modelVersion'], s.get('appVersion', 'unknown'), instruments)].append((a, s))
+    for (version, app_version, instruments), rows in primary.items():
+        print('\nFirst completed primary research records only; partial first records remain in the table. Model =', version, 'app =', app_version, 'instruments =', instruments, 'n =', len(rows), file=sys.stderr)
         for key in ('newSingleUse', 'nonFoodWaste', 'foodWaste'):
             values = [a[key] for a, _ in rows]
             if values:
@@ -93,6 +94,7 @@ def main(paths):
         if questions:
             print('Per-question ratings (1-5; fatigue: higher = more tired). No combined score.', file=sys.stderr)
             for row in rating_summary([s for _, s in rows], questions):
+                row.update(modelVersion=version, appVersion=app_version, instrumentVersions=instruments)
                 print(json.dumps(row), file=sys.stderr)
     if not questions:
         print('For rating summaries, keep rating-questionnaire.json beside this script (extract it from a current report).', file=sys.stderr)

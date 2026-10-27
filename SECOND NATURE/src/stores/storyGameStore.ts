@@ -116,14 +116,33 @@ export const useStoryGame=defineStore('story',()=>{
   function rating(key:string,value:number){
     const question=ratingQuestions.find(q=>q.key===key);
     if(!session.value||page.value!=='ratings'||!question||!isRatingValue(value)||isRatingValue(session.value.ratings[key]))return false;
+    if(key==='clarity'&&!session.value.resultsReviewCompletedAt)return false;
     session.value.ratings[key]=value;
-    event('rating_submitted',{key,value,question:question.title,low:question.low,high:question.high,label:question.labels[value-1],labels:question.labels,section:question.section,highMeaning:question.highMeaning,instrumentVersion:RATING_INSTRUMENT_VERSION,appVersion:APP_VERSION});
+    event('rating_submitted',{key,value,question:question.title,context:question.context??null,low:question.low,high:question.high,label:question.labels[value-1],labels:question.labels,section:question.section,highMeaning:question.highMeaning,instrumentVersion:RATING_INSTRUMENT_VERSION,appVersion:APP_VERSION,resultsReviewCompletedAt:session.value.resultsReviewCompletedAt??null});
     save();return true;
   }
   function openRatings(source='results'){
     if(!session.value||!needsFeedback(session.value))return false;
+    if(ratingQuestions.find(q=>!isRatingValue(session.value!.ratings[q.key]))?.key==='clarity'&&!session.value.resultsReviewCompletedAt){
+      setPage('summary');summaryPage.value=0;viewResultsPage(0);return false;
+    }
     event('ratings_opened',{instrumentVersion:RATING_INSTRUMENT_VERSION,source,answered:ratingCount.value,storyEndedAt:session.value.endedAt,appVersion:APP_VERSION});
     setPage('ratings');return true;
+  }
+  function viewResultsPage(index:number){
+    if(!session.value||page.value!=='summary'||!Number.isInteger(index)||index<0||index>3)return;
+    summaryPage.value=index;
+    session.value.resultPagesViewed??=[];
+    if(!session.value.resultPagesViewed.includes(index)){
+      session.value.resultPagesViewed.push(index);event('results_page_viewed',{page:index+1});save();
+    }
+  }
+  function finishResultsReview(){
+    if(!session.value||page.value!=='summary'||![0,1,2,3].every(i=>session.value!.resultPagesViewed?.includes(i)))return false;
+    if(!session.value.resultsReviewCompletedAt){
+      session.value.resultsReviewCompletedAt=new Date().toISOString();event('results_review_completed');save();
+    }
+    return openRatings('after_results_review');
   }
   function probe(phase:string,set:string,questionId:string,choiceId:string,correct:boolean){if(session.value){session.value.probes.push({phase,set,questionId,choiceId,correct});event('probe_answered',{phase,set,questionId,choiceId,correct});save();}}
   function setPage(next:Page){page.value=next;modal.value=null;if(session.value){session.value.studyPhase=next;save();}transition.value='awaitingRelease';if(next==='story')void prepareScene();}
@@ -134,5 +153,5 @@ export const useStoryGame=defineStore('story',()=>{
     if(needsFeedback(s)&&s.studyPhase!=='post'){openRatings('saved_day');return;}
     page.value='summary';transition.value='awaitingRelease';
   }
-  return {session,sessions,page,transition,modal,saveError,degraded,aftermath,summaryPage,motion,pauseReasons,displayedIndex,currentScene,choices,visit,canContinue,ratingCount,feedbackPending,inputAllowed,save,event,start,practiceDone,pause,removePause,openModal,resume,prepareScene,releaseReady,choose,continueTransition,continueSession,exit,abort,rating,openRatings,probe,setPage,hidden,showSession};
+  return {session,sessions,page,transition,modal,saveError,degraded,aftermath,summaryPage,motion,pauseReasons,displayedIndex,currentScene,choices,visit,canContinue,ratingCount,feedbackPending,inputAllowed,save,event,start,practiceDone,pause,removePause,openModal,resume,prepareScene,releaseReady,choose,continueTransition,continueSession,exit,abort,rating,openRatings,viewResultsPage,finishResultsReview,probe,setPage,hidden,showSession};
 });

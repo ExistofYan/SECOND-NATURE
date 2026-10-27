@@ -1,5 +1,5 @@
 {
-  "version": "waste-ui-1",
+  "version": "waste-ui-2",
   "sections": [
     {
       "key": "waste",
@@ -225,22 +225,6 @@
       "highMeaning": "Greater perceived story connection"
     },
     {
-      "key": "clarity",
-      "section": "interface",
-      "title": "How clear were the end-of-day outcomes?",
-      "low": "Not clear",
-      "high": "Very clear",
-      "labels": [
-        "Not clear",
-        "Slightly clear",
-        "Moderately clear",
-        "Clear",
-        "Very clear"
-      ],
-      "highMeaning": "Greater perceived outcome clarity",
-      "context": "Think about the outcomes shown after your choices in the story."
-    },
-    {
       "key": "engagement",
       "section": "interface",
       "title": "How engaging was the experience of playing the story?",
@@ -254,6 +238,22 @@
         "Extremely engaging"
       ],
       "highMeaning": "Greater self-reported engagement"
+    },
+    {
+      "key": "clarity",
+      "section": "interface",
+      "title": "How clear were the end-of-day outcomes?",
+      "low": "Not clear",
+      "high": "Very clear",
+      "labels": [
+        "Not clear",
+        "Slightly clear",
+        "Moderately clear",
+        "Clear",
+        "Very clear"
+      ],
+      "highMeaning": "Greater perceived outcome clarity",
+      "context": "Think about the end-of-day result pages you have just reviewed, including the counts, item destinations and choice explanations."
     }
   ]
 }

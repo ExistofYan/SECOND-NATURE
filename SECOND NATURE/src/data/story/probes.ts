@@ -2,7 +2,7 @@ export const probeSets={
  A:[{id:'A1',text:'A clean shopping bag is still useful. Is keeping it for reuse the same as sending it to recycling now?',answers:['Yes, they are the same action.','No. Keeping it extends its use before collection.'],correct:1},{id:'A2',text:'You bought extra fruit that is still edible at the end of the day. What should the record show?',answers:['Edible inventory, not food waste yet.','Food waste as soon as it is bought.'],correct:0},{id:'A3',text:'A bottle goes into a recycling collection. Does the number of discarded bottles become zero?',answers:['Yes, recycling cancels the discarded item.','No, it is still a discarded item in collection.'],correct:1}],
  B:[{id:'B1',text:'An intact folder can be used next term. How is keeping it different from recycling it today?',answers:['Keeping extends use; recycling sends it to collection.','Both mean the folder was discarded today.'],correct:0},{id:'B2',text:'One dinner portion is safely stored for tomorrow. What is its status tonight?',answers:['Already eaten.','Saved for later, not food waste tonight.'],correct:1},{id:'B3',text:'You acquire two disposable cups and send both to recycling collection. How many cups were acquired?',answers:['Two, even though they entered recycling collection.','Zero, because recycling removed them from the count.'],correct:0}],
 };
-export const RATING_INSTRUMENT_VERSION='waste-ui-1';
+export const RATING_INSTRUMENT_VERSION='waste-ui-2';
 export const ratingSections=[
  {key:'waste',title:'Waste prevention',description:'Think about your understanding and intentions after playing. There are no right or wrong ratings.'},
  {key:'interface',title:'Interface experience',description:'Think about how the game felt to use, including any difficulties.'},
@@ -28,8 +28,8 @@ export const ratingQuestions:RatingQuestion[]=[
  {key:'feedback',section:'interface',title:'How clear was the feedback that your pinch had selected an option?',low:'Not clear',high:'Very clear',labels:['Not clear','Slightly clear','Moderately clear','Clear','Very clear'],highMeaning:'Greater perceived selection-feedback clarity'},
  {key:'fatigue',section:'interface',title:'How tired does your arm feel?',low:'Not tired',high:'Very tired',labels:['Not tired','A little tired','Moderately tired','Tired','Very tired'],highMeaning:'More arm fatigue'},
  {key:'coherence',section:'interface',title:'How connected did the story feel?',low:'Not connected',high:'Very connected',labels:['Not connected','Slightly connected','Moderately connected','Connected','Very connected'],highMeaning:'Greater perceived story connection'},
- {key:'clarity',section:'interface',title:'How clear were the end-of-day outcomes?',low:'Not clear',high:'Very clear',labels:['Not clear','Slightly clear','Moderately clear','Clear','Very clear'],highMeaning:'Greater perceived outcome clarity',context:'Think about the outcomes shown after your choices in the story.'},
  {key:'engagement',section:'interface',title:'How engaging was the experience of playing the story?',low:'Not engaging',high:'Extremely engaging',labels:['Not engaging','Slightly engaging','Moderately engaging','Very engaging','Extremely engaging'],highMeaning:'Greater self-reported engagement'},
+ {key:'clarity',section:'interface',title:'How clear were the end-of-day outcomes?',low:'Not clear',high:'Very clear',labels:['Not clear','Slightly clear','Moderately clear','Clear','Very clear'],highMeaning:'Greater perceived outcome clarity',context:'Think about the end-of-day result pages you have just reviewed, including the counts, item destinations and choice explanations.'},
 ];
 export function isRatingValue(value:unknown):value is number {
  return typeof value==='number'&&Number.isInteger(value)&&value>=1&&value<=5;

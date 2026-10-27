@@ -40,7 +40,7 @@ it('registers identity only after valid details, course confirmation and a fresh
   nav.awaitingRelease=false;nav.frameId++;await nextTick();
   nav.pinching=true;nav.pressId++;nav.frameId++;await nextTick();
  }
- await pinch('Research mode');expect(game.page).toBe('registration');
+ await pinch('Start a new day');expect(game.page).toBe('registration');
  expect(game.sessions).toHaveLength(0);
  const inputs=document.querySelectorAll('input');
  inputs[0].value='Synthetic Test Participant';inputs[0].dispatchEvent(new Event('input'));
@@ -77,6 +77,22 @@ it.each(['play','research'] as const)('records sixteen fresh gesture ratings aft
  Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
  const scores=ratingQuestions.map((_,i)=>[2,4,5,3][i%4]);
  for(let i=0;i<ratingQuestions.length;i++){
+  if(ratingQuestions[i].key==='clarity'){
+   expect(game.page).toBe('summary');
+   expect(game.rating('clarity',5)).toBe(false);
+   expect(game.finishResultsReview()).toBe(false);
+   for(let page=1;page<=4;page++){
+    target=Array.from(document.querySelectorAll('.summary-nav button')).find(b=>b.textContent?.includes(page===4?'Answer final rating':'Next page'))??null;
+    expect(target).not.toBeNull();
+    nav.pinching=false;nav.awaitingRelease=false;nav.frameId++;await nextTick();
+    nav.awaitingRelease=false;nav.frameId++;await nextTick();
+    nav.pinching=true;nav.pressId++;nav.frameId++;await nextTick();
+    if(page<4)expect(game.summaryPage).toBe(page);
+   }
+   expect(game.page).toBe('ratings');
+   expect(game.session!.resultsReviewCompletedAt).toBeTruthy();
+   expect(game.session!.resultPagesViewed).toEqual([0,1,2,3]);
+  }
   expect(document.querySelector('.experience-page h1')?.textContent).toBe(ratingQuestions[i].title);
   target=document.querySelector(`[data-rating-value="${scores[i]}"]`);
   expect(target?.textContent).toContain(ratingQuestions[i].labels[scores[i]-1]);
@@ -102,6 +118,7 @@ it.each(['play','research'] as const)('records sixteen fresh gesture ratings aft
   }
  }
  expect(game.page).toBe('summary');expect(game.session!.studyPhase).toBe('summary');expect(game.canContinue).toBe(false);
+ expect(game.summaryPage).toBe(3);
  expect(game.session!.ratings).toEqual(Object.fromEntries(ratingQuestions.map((q,i)=>[q.key,scores[i]])));
  for(const e of game.session!.events.filter(e=>e.type==='rating_submitted')){
   expect(e.wallTimeISO).toBeTruthy();expect(e.payload.question).toBeTruthy();expect(e.payload.label).toBeTruthy();

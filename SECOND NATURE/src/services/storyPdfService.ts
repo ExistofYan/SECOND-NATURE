@@ -127,6 +127,7 @@ export function buildStoryPdf(s: Session, previous: Session | null = null): Uint
   pdf.paragraph('Higher fatigue means more tiredness; higher scores on the other questions mean more of the named experience, understanding, confidence, relevance or intention. These custom single-item ratings are reported separately, without a combined total. They are not SUS or a validated scale.', 9);
   pdf.paragraph('Waste-prevention answers describe perceived understanding and current intentions, not a measured increase in knowledge or a reduction in real-world waste. Responsiveness and selection accuracy are self-reports, not measured latency or observed error rates. No baseline comparison is inferred.', 9);
   pdf.page('Research context');
+  pdf.paragraph(`Result pages reviewed (UTC): ${s.resultsReviewCompletedAt ?? 'Not recorded (legacy or incomplete review)'}. In questionnaire waste-ui-2, the final outcome-clarity response follows the result-page review. Earlier questionnaire responses retain their original meaning.`, 9);
   if (s.probes.length) {
     pdf.heading('Knowledge-check responses');
     const all = [...probeSets.A, ...probeSets.B];

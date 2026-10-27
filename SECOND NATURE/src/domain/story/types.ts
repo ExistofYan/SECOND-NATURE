@@ -20,6 +20,8 @@ export interface Session {
   participant?: ParticipantIdentity;
   timeZone?: string;
   consentVersion?: string;
+  resultPagesViewed?: number[];
+  resultsReviewCompletedAt?: string;
   sessionId: string; schemaVersion: number; modelVersion: string; appVersion: string; kind: 'play' | 'research'; participantCode: string | null;
   consentAt: string | null; startedAt: string; endedAt: string | null; status: 'active' | 'interrupted' | 'completed' | 'aborted';
   parentSessionId: string | null; modelSnapshot: Scene[]; initialInventory: Item[]; items: Item[]; events: StoryEvent[];

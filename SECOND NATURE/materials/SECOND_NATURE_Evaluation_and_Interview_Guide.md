@@ -109,7 +109,7 @@ ffmpeg -i exported-video.mp4 -c:v libx264 -preset slow -b:v 2000k -maxrate 2500k
 
 ### 3.7 采集、记录与存储
 
-先进入 Research mode，由研究者用键盘输入英文或拼音全名、u 加 7 位数字的学号。参与者核对并用手势确认当前课程，阅读说明后用新的捏合动作同意。登记是任务前准备，正式游戏与评分仍采用手势。
+在首页选择主按钮 Start a new day，首先进入姓名与学号登记页，由研究者用键盘输入英文或拼音全名、u 加 7 位数字的学号。参与者核对并用手势确认当前课程，阅读说明后用新的捏合动作同意。登记是任务前准备，正式游戏与评分仍采用手势。Free play (no participant details) 是不登记身份的独立试玩入口，不用于正式参与者研究。
 
 系统记录 UTC 的 ISO 时间及设备时区；PDF 同时显示会话开始的本地日期时间。研究前检查设备日期和时区。故事结束时间、16 题全部完成时间、导出时间分别记录，不能互相替代。只有部分题目完成时，评估完成时间留空；原有历史记录缺失的身份不补造。
 
@@ -134,14 +134,14 @@ ffmpeg -i exported-video.mp4 -c:v libx264 -preset slow -b:v 2000k -maxrate 2500k
 3. 记录环境和开始时间，进行指向、捏合、松开的练习。
 4. 如果计划启用知识题，先完成前测；不要给正确答案提示。
 5. 完成故事；研究者记录观察，不指导环保选择。必要协助要写下内容和时间。
-6. 如果启用知识题，完成后测，然后完成 16 道评分。提醒没有理想分数，可休息或结束。
-7. 查看结果页并手势导出 PDF；确认文件确实已下载。不要为了补齐数据替参与者回答。
+6. 如果启用知识题，完成后测，然后完成前 15 道评分。提醒没有理想分数，可休息或结束。
+7. 系统随后打开四个结果页面；按 Next page 浏览，在第四页选择 Answer final rating，回答第 16 题结果清晰度，再导出 PDF。系统保存结果页查看和确认时间。未完成评分时仍可导出，但按钮会明确提示 ratings incomplete；不要为了补齐数据替参与者回答。
 8. 进行半结构化访谈或开放式问卷；保存实际回答，关联同一参与者编号、会话 ID 和时间。
 9. 提醒退出／撤回办法；核对文件是否完整并备份。重玩单独标记，不替换第一次原始记录。
 
 ## 5 游戏内量化题目
 
-这 16 题已经在游戏结束流程中。完整英文措辞与五级标签见随导出附带的 rating-questionnaire.json；评分版本为 waste-ui-1。以下表格由项目现有定义同步生成。
+这 16 题已经在游戏结束流程中。完整英文措辞与五级标签见随导出附带的 rating-questionnaire.json；评分版本为 waste-ui-2，应用版本为 1.3.1。第 16 题放在结果页之后，其余题在结果页之前，避免结果展示改变即时减废自评及操作体验回答。结果页的查看记录不代表参与者已阅读每条细节。旧版答案保留原始含义，不能直接与新版结果清晰度回答混为一组。
 
 | 题号 | 主题 | 原题 | 1 分至 5 分的标签 |
 |---|---|---|---|
@@ -159,8 +159,8 @@ ffmpeg -i exported-video.mp4 -c:v libx264 -preset slow -b:v 2000k -maxrate 2500k
 | Q12 | 界面体验 | How clear was the feedback that your pinch had selected an option? | 1 Not clear / 2 Slightly clear / 3 Moderately clear / 4 Clear / 5 Very clear |
 | Q13 | 界面体验 | How tired does your arm feel? | 1 Not tired / 2 A little tired / 3 Moderately tired / 4 Tired / 5 Very tired |
 | Q14 | 界面体验 | How connected did the story feel? | 1 Not connected / 2 Slightly connected / 3 Moderately connected / 4 Connected / 5 Very connected |
-| Q15 | 界面体验 | How clear were the end-of-day outcomes? | 1 Not clear / 2 Slightly clear / 3 Moderately clear / 4 Clear / 5 Very clear |
-| Q16 | 界面体验 | How engaging was the experience of playing the story? | 1 Not engaging / 2 Slightly engaging / 3 Moderately engaging / 4 Very engaging / 5 Extremely engaging |
+| Q15 | 界面体验 | How engaging was the experience of playing the story? | 1 Not engaging / 2 Slightly engaging / 3 Moderately engaging / 4 Very engaging / 5 Extremely engaging |
+| Q16 | 界面体验 | How clear were the end-of-day outcomes? | 1 Not clear / 2 Slightly clear / 3 Moderately clear / 4 Clear / 5 Very clear |
 
 每题是独立的有序评分。疲劳题分数越高表示越疲劳，其余题按各自问题解释。感知理解、信心、意向都不是实际长期行为改变；选择准确性的自评分也不是测得的误触率。
 
@@ -360,7 +360,7 @@ python "课程仓库/materials/P01/analyze_story.py" "课程仓库/materials/P01
 python materials/analysis/analyze_story.py materials/P01/session.json materials/P02/session.json materials/P03/session.json > materials/analysis/participant-summary.csv 2> materials/analysis/descriptive-statistics.txt
 ```
 
-多记录分析优先按学号辨认同一人，旧数据无学号时退回参与者编号。主要描述统计使用每人的首次研究记录；自由体验、重玩、未完成及缺失需如实说明。同一题目版本、应用版本应分别核对后再汇总；脚本按故事模型版本分组并不能代替此人工核对。
+多记录分析优先按学号辨认同一人，旧数据无学号时退回参与者编号。主要描述统计使用每人的首次研究记录；自由体验、重玩、未完成及缺失需如实说明。脚本按故事模型、原始应用版本和实际评分事件中的问卷版本组合分组；仍需人工核对题目语境与晚补回答，不能把未标记版本的数据当作新版数据。
 
 建议形成三种输出：
 

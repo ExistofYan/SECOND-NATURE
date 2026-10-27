@@ -16,7 +16,7 @@ export function storyFiles(s:Session,previous:Session|null=null,exportedAt=new D
  const metadata={
    participantName:s.participant?.fullName??null,studentId:s.participant?.studentId??null,course:s.participant?.course??null,
    sessionStartedAt:s.startedAt,storyEndedAt:s.endedAt,evaluationCompletedAt:evaluationCompletedAt(s),
-   sessionTimeZone:s.timeZone??null,consentAt:s.consentAt,consentVersion:s.consentVersion??null
+   sessionTimeZone:s.timeZone??null,consentAt:s.consentAt,consentVersion:s.consentVersion??null,resultsReviewCompletedAt:s.resultsReviewCompletedAt??null
  };
  const csv=(keys:string[],rows:unknown[][])=>baseCsv([...Object.keys(metadata),...keys],rows.map(row=>[...Object.values(metadata),...row]));
  const a=analyze(s),items=a.items,review=reflections(s),travel=travelSummary(s);

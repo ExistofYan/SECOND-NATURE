@@ -1,3 +1,7 @@
+# Registration entry and result review in 1.3.1
+
+The main Start a new day button opens participant registration and consent. Anonymous free play is labelled separately. Questionnaire waste-ui-2 retains 16 items: the first 15 follow the story, then four result pages precede the last clarity question. Page visits and review confirmation are saved with timestamps; the final response is blocked until review is confirmed. After that response the export page opens. Incomplete exports remain possible and are labelled. Prior ratings are preserved; analysis groups app and questionnaire versions separately.
+
 # Participant registration and coursework evidence
 
 Research mode now opens a separate registration page before consent. The researcher types an English/pinyin name and ANU ID; the participant confirms current COMP3900/6390 enrolment and consents with a fresh gesture. Invalid or missing details block continuation. Identity is persisted only after consent; free play and legacy records remain supported. Camera frames and landmarks are not saved.
