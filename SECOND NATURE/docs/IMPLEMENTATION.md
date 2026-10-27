@@ -1,3 +1,11 @@
+# Participant registration and coursework evidence
+
+Research mode now opens a separate registration page before consent. The researcher types an English/pinyin name and ANU ID; the participant confirms current COMP3900/6390 enrolment and consents with a fresh gesture. Invalid or missing details block continuation. Identity is persisted only after consent; free play and legacy records remain supported. Camera frames and landmarks are not saved.
+
+PDF session details include name, ID, course, consent version/time, original start and story-end times, completion time for all 16 ratings, export time, and the recorded device time zone. Every CSV carries identity and session dates. Embedded export-metadata.json records export time; participant-list.txt provides the course-required participant-list format. Preserve raw records in the access-controlled coursework materials directory, not the public game repository. The multi-session analysis groups people by student ID when available and falls back to legacy codes; a replay does not consume a primary-participant slot.
+
+The complete requirements checklist, nine-part evaluation plan, questionnaire, interview prompts and blank evidence templates are in [the evaluation guide](../materials/SECOND_NATURE_Evaluation_and_Interview_Guide.md). Actual participants, recordings, answers and findings still need to be collected.
+
 # Quantitative evaluation update (v1.3.0)
 
 The post-game questionnaire now has 16 custom single-item ratings, grouped into eight waste-prevention questions and eight interface-experience questions. Each screen presents one question, five fully labelled options and both overall and section progress. All selections remain gesture-only, with a fresh pinch required per response, no typing and no countdown. Responses save immediately and resume at the next unanswered question. Both free play and research sessions use this flow.

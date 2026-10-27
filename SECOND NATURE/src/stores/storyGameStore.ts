@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import type { Session, SceneVisit, Timing } from '../domain/story/types';
+import type { Session, SceneVisit, Timing, ParticipantIdentity } from '../domain/story/types';
+import { participantError, CONSENT_VERSION } from '../domain/story/participant';
 import { createSession, availableChoices, commitChoice, openVisit, markReady, log, DecisionClock, newTimingSegment } from '../domain/story/sceneEngine';
 import { loadSessions, saveSessions } from '../services/storyStorageService';
 import { prepareArt } from '../services/storyAssetService';
 import { isRatingValue, ratingQuestions, RATING_INSTRUMENT_VERSION } from '../data/story/probes';
 import { APP_VERSION } from '../config/interaction';
-export type Page='cover'|'consent'|'practice'|'pre'|'story'|'post'|'ratings'|'summary'|'sessions';
+export type Page='cover'|'registration'|'consent'|'practice'|'pre'|'story'|'post'|'ratings'|'summary'|'sessions';
 export type Transition='interactive'|'committing'|'aftermath'|'fadeOut'|'blackHold'|'reading'|'fadeIn'|'awaitingRelease';
 const delay=(ms:number)=>new Promise(resolve=>setTimeout(resolve,ms));
 const needsFeedback=(s:Session)=>s.status==='completed'&&ratingQuestions.some(q=>!isRatingValue(s.ratings[q.key]));
@@ -26,7 +27,18 @@ export const useStoryGame=defineStore('story',()=>{
   const inputAllowed=computed(()=>!['committing','aftermath','fadeOut','blackHold','fadeIn'].includes(transition.value));
   function save(){if(!session.value)return;const i=sessions.value.findIndex(s=>s.sessionId===session.value!.sessionId);if(i<0)sessions.value.push(session.value);else sessions.value[i]=session.value;try{saveSessions(sessions.value);saveError.value='';}catch{saveError.value='This session is in memory only. Device storage failed. Export the report before closing this page.';}}
   function event(type:string,payload:Record<string,unknown>={}){if(session.value)log(session.value,type,payload,visit.value);}
-  function start(kind:Session['kind']='play',code:string|null=null,collect=false,set:'A'|'B'='A',parent:string|null=null){animationToken++;clock=null;pauseReasons.value=[];modal.value=null;session.value=createSession(kind,code,parent,motion.value,collect,set);page.value='practice';transition.value='awaitingRelease';summaryPage.value=0;save();}
+  function start(kind:Session['kind']='play',code:string|null=null,collect=false,set:'A'|'B'='A',parent:string|null=null,identity?:ParticipantIdentity){
+    if(identity&&participantError(identity))throw new Error(participantError(identity));
+    animationToken++;clock=null;pauseReasons.value=[];modal.value=null;
+    session.value=createSession(kind,code,parent,motion.value,collect,set);
+    session.value.timeZone=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if(kind==='research'&&identity){
+      session.value.participant={fullName:identity.fullName.trim(),studentId:identity.studentId.trim().toLowerCase(),course:identity.course};
+      session.value.consentVersion=CONSENT_VERSION;
+      log(session.value,'participant_registered',{...session.value.participant,timeZone:session.value.timeZone,consentVersion:CONSENT_VERSION});
+    }
+    page.value='practice';transition.value='awaitingRelease';summaryPage.value=0;save();
+  }
   function practiceDone(){event('practice_completed');if(session.value){session.value.studyPhase=session.value.kind==='research'&&session.value.collectProbes?'pre':'story';page.value=session.value.studyPhase as Page;save();if(page.value==='story')void prepareScene();}}
   function closeClock(){if(!clock||!session.value||!visit.value)return;const t=clock.read();event('decision_segment_closed',{...t}); const v=visit.value;for(const key of ['decisionWallMs','decisionActiveMs','pausedMs'] as const)v[key]=(v[key]??0)+(t[key]??0);clock=null;}
   function pause(reason:string){if(pauseReasons.value.includes(reason))return;pauseReasons.value.push(reason);clock?.pause(reason);event('pause_started',{reason});save();}

@@ -25,6 +25,36 @@ function almostFinished(kind:'play'|'research'='play',probes=false){
  while(s.nextSceneIndex<s.modelSnapshot.length-1){const v=openVisit(s);s=commitChoice(s,v.visitId,availableChoices(s)[0].id,{decisionActiveMs:1000,decisionWallMs:1000,pausedMs:0});}
  s.studyPhase='story';return s;
 }
+
+it('registers identity only after valid details, course confirmation and a fresh consent gesture',async()=>{
+ const pinia=createPinia();setActivePinia(pinia);
+ const game=useStoryGame(),nav=useGestureNavStore();
+ app=createApp(App);app.use(pinia);app.mount('#app');
+ nav.running=true;nav.pointerActive=true;
+ let target:Element|null=null;
+ Object.defineProperty(document,'elementFromPoint',{configurable:true,value:()=>target});
+ async function pinch(label:string){
+  target=Array.from(document.querySelectorAll('button')).find(b=>b.textContent?.includes(label))??null;
+  expect(target).not.toBeNull();
+  nav.pinching=false;nav.awaitingRelease=false;nav.frameId++;await nextTick();
+  nav.awaitingRelease=false;nav.frameId++;await nextTick();
+  nav.pinching=true;nav.pressId++;nav.frameId++;await nextTick();
+ }
+ await pinch('Research mode');expect(game.page).toBe('registration');
+ expect(game.sessions).toHaveLength(0);
+ const inputs=document.querySelectorAll('input');
+ inputs[0].value='Synthetic Test Participant';inputs[0].dispatchEvent(new Event('input'));
+ inputs[1].value='invalid';inputs[1].dispatchEvent(new Event('input'));await nextTick();
+ await pinch('COMP6390');await pinch('Review consent');expect(game.page).toBe('registration');
+ inputs[1].value='U0000000';inputs[1].dispatchEvent(new Event('input'));await nextTick();
+ await pinch('Review consent');expect(game.page).toBe('consent');expect(game.sessions).toHaveLength(0);
+ await pinch('I agree to take part');expect(game.page).toBe('practice');
+ expect(game.session?.participant).toEqual({fullName:'Synthetic Test Participant',studentId:'u0000000',course:'COMP6390'});
+ expect(game.session?.consentVersion).toBe('identified-course-study-1');
+ expect(game.session?.timeZone).toBeTruthy();
+ expect(JSON.parse(localStorage.getItem(STORY_KEY)!)[0].participant).toEqual(game.session?.participant);
+ game.exit();game.continueSession();expect(game.session?.participant?.studentId).toBe('u0000000');
+});
 function completedLegacy(){
  const s=almostFinished(),v=openVisit(s);
  const completed=commitChoice(s,v.visitId,'keep',{decisionActiveMs:1000,decisionWallMs:1000,pausedMs:0});

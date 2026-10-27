@@ -8,7 +8,7 @@ export async function exportStory(s: Session, previous: Session | null = null) {
   const anchor = document.createElement('a');
   anchor.href = url;
   const code = (s.participantCode ?? 'play').replace(/[^a-z0-9_-]/gi, '_');
-  anchor.download = `SecondNature-${code}-${s.sessionId.slice(0, 8)}.pdf`;
+  anchor.download = `SecondNature-${s.startedAt.slice(0,10)}-${code}-${s.sessionId.slice(0, 8)}.pdf`;
   anchor.style.display = 'none';
   document.body.append(anchor);
   try { anchor.click(); }

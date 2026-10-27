@@ -1,5 +1,9 @@
 # Verification record
 
+## Participant registration and metadata update
+
+TypeScript checking and 25 related tests across storyPdf, storyStore and experienceRatings pass. A simulated gesture flow verifies invalid registration, course selection, no saved session before consent, consent, persistence and resume. Synthetic PDF fixtures round-trip original session data, participant lists, identity-bearing CSVs and matching export metadata. The modified PDF identity page was rendered with Poppler and visually inspected. These fixtures are software checks, not participant research data. No live camera user study was performed.
+
 ## 1.2.1 gesture and PDF export
 
 The 56 automated tests across 11 files pass, including sustained-pinch motion, deliberate-motion filtering and immediate latest-frame capture without an inference queue. The production build and TypeScript check pass. A single download has the application/pdf MIME type and a .pdf filename. Complete low/high-discard, partial and empty synthetic fixtures round-trip through the PDF attachments exactly; the extracted Python script reproduces frontend analysis. Extraction refuses to replace different existing records.

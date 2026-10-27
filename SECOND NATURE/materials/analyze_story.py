@@ -70,16 +70,18 @@ def main(paths):
         print(json.dumps(analyze(sessions[0]), indent=2))
         return
     writer = csv.writer(sys.stdout)
-    writer.writerow(['participant', 'session', 'kind', 'status', 'primary_first', 'scenes', 'new_single_use', 'non_food_discarded', 'food_discarded_servings'] + [q['key'] for q in questions])
+    writer.writerow(['participant', 'session', 'kind', 'status', 'primary_first', 'scenes', 'new_single_use', 'non_food_discarded', 'food_discarded_servings', 'participant_name', 'student_id', 'course', 'started_at', 'story_ended_at', 'time_zone'] + [q['key'] for q in questions])
     seen = set()
     primary = defaultdict(list)
     for s in sorted(sessions, key=lambda x: x['startedAt']):
         participant = s.get('participantCode')
-        is_primary = s['kind'] == 'research' and participant and participant not in seen and not s.get('parentSessionId')
-        if s['kind'] == 'research' and participant:
-            seen.add(participant)
+        identity = s.get('participant') or {}
+        person_key = (identity.get('studentId') or participant or '').strip().lower()
+        is_primary = s['kind'] == 'research' and person_key and person_key not in seen and not s.get('parentSessionId')
+        if s['kind'] == 'research' and person_key and not s.get('parentSessionId'):
+            seen.add(person_key)
         a = analyze(s)
-        writer.writerow([participant or 'none', s['sessionId'], s['kind'], s['status'], bool(is_primary), a['completedScenes'], a['newSingleUse'], a['nonFoodWaste'], a['foodWaste']] + [rating_value(s.get('ratings', {}).get(q['key'])) for q in questions])
+        writer.writerow([participant or 'none', s['sessionId'], s['kind'], s['status'], bool(is_primary), a['completedScenes'], a['newSingleUse'], a['nonFoodWaste'], a['foodWaste'], identity.get('fullName'), identity.get('studentId'), identity.get('course'), s['startedAt'], s.get('endedAt'), s.get('timeZone')] + [rating_value(s.get('ratings', {}).get(q['key'])) for q in questions])
         if is_primary and s['status'] == 'completed':
             primary[s['modelVersion']].append((a, s))
     for version, rows in primary.items():

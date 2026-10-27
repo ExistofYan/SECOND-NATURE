@@ -23,6 +23,8 @@ describe('one-file PDF results and raw evidence',()=>{
   const samples:{name:string;session:Session}[]=[{name:'low',session:route(low)},{name:'high',session:route(high)},{name:'partial',session:route(['extra'])},{name:'empty',session:createSession()}];
   // Synthetic fixture only: exercise long questionnaire content and pagination.
   samples[1].session.ratings=Object.fromEntries(ratingQuestions.map((q,i)=>[q.key,1+i%5]));
+  samples[1].session.participant={fullName:'Synthetic Test Participant',studentId:'u0000000',course:'COMP6390'};
+  samples[1].session.timeZone='Australia/Sydney';
   samples[1].session.probes=[...probeSets.A.map(q=>({phase:'pre',set:'A',questionId:q.id,choiceId:String(q.correct),correct:true})),...probeSets.B.map(q=>({phase:'post',set:'B',questionId:q.id,choiceId:String(q.correct),correct:true}))];
   for(const {name,session}of samples){
    const bytes=buildStoryPdf(session),path=join(dir,`${name}.pdf`),output=join(dir,name);
@@ -32,6 +34,15 @@ describe('one-file PDF results and raw evidence',()=>{
    expect(text).not.toContain('long-term behaviour improvement');
    execFileSync('python',['materials/extract_report.py',path,'--output',output]);
    expect(JSON.parse(readFileSync(join(output,'session.json'),'utf8'))).toEqual(session);
+   const metadata=JSON.parse(readFileSync(join(output,'export-metadata.json'),'utf8'));
+   expect(metadata.sessionStartedAt).toBe(session.startedAt);
+   expect(text).toContain(metadata.exportedAt);
+   if(session.participant){
+    expect(text).toContain('Synthetic Test Participant');expect(text).toContain('u0000000');expect(text).toContain('Australia/Sydney');
+    expect(metadata.studentId).toBe('u0000000');
+    expect(readFileSync(join(output,'participant-list.txt'),'utf8')).toBe('- u0000000 Synthetic Test Participant\n');
+    expect(readFileSync(join(output,'ratings.csv'),'utf8')).toContain('Synthetic Test Participant,u0000000,COMP6390');
+   }
    const replay=execFileSync('python',[join(output,'analyze_story.py'),join(output,'session.json')],{encoding:'utf8'});
    expect(JSON.parse(replay)).toEqual(analyze(session));
    // Idempotent extraction is allowed, but a changed research record is protected.

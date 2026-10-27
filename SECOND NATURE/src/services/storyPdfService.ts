@@ -38,18 +38,28 @@ export function personalInsights(s: Session) {
   return { observations, actions };
 }
 
+import { localSessionDate, evaluationCompletedAt } from '../domain/story/participant';
+
 export function buildStoryPdf(s: Session, previous: Session | null = null): Uint8Array {
+  const exportedAt = new Date().toISOString();
   const pdf = new ReportPdf(), a = analyze(s), review = reflections(s), insights = personalInsights(s);
   pdf.page('Personal results');
   pdf.heading('Your day, understood.', 29);
   pdf.paragraph('A collected record of your choices, their simulated outcomes and practical next steps.', 11);
   pdf.table(['Session detail', 'Recorded value'], [
     ['Participant / mode', `${s.participantCode ?? 'Free play'} / ${s.kind}${s.parentSessionId ? ' / replay' : ''}`],
+    ['Participant name', s.participant?.fullName ?? 'Not recorded (free play / legacy session)'],
+    ['Student ID / course', `${s.participant?.studentId ?? 'Not recorded'} / ${s.participant?.course ?? 'Not recorded'}`],
+    ['Session date / time zone', `${localSessionDate(s)} / ${s.timeZone ?? 'Not recorded'}`],
+    ['Consent (UTC) / notice', `${s.consentAt ?? 'Not recorded'} / ${s.consentVersion ?? 'Legacy / not recorded'}`],
+    ['Evaluation completed (UTC)', evaluationCompletedAt(s) ?? 'Incomplete / not recorded'],
+    ['Exported (UTC)', exportedAt],
     ['Progress / status', `${a.completedScenes} of ${a.totalScenes} scenes / ${s.status}`],
-    ['Started / ended (ISO time)', `${s.startedAt} / ${s.endedAt ?? 'Not ended'}`],
+    ['Started / story ended (UTC)', `${s.startedAt} / ${s.endedAt ?? 'Not ended'}`],
     ['Story / app / schema', `${s.modelVersion} / ${s.appVersion} / ${s.schemaVersion}`],
     ['Session ID', s.sessionId],
   ], [160, pdf.contentWidth - 160], 'Session details', true);
+  pdf.ensure(111, 'Personal results / continued');
   const top = pdf.y, gap = 10, cardWidth = (pdf.contentWidth - 2 * gap) / 3;
   [[a.newSingleUse, 'New single-use', 'items incl. sheets'], [a.nonFoodWaste, 'Non-food discarded', 'items incl. sheets'], [a.foodWaste, 'Food discarded', 'game servings']].forEach(([n, label, unit], i) => {
     const x = pdf.margin + i * (cardWidth + gap);
@@ -150,8 +160,9 @@ export function buildStoryPdf(s: Session, previous: Session | null = null): Uint
   pdf.heading('What this report supports');
   pdf.paragraph('It supports checking what was selected, what item outcomes the prototype produced, and what responses were actually submitted. It does not establish real-world waste reduction, long-term behaviour change, causal learning, gesture superiority over another input method, or the reasons behind a participant choice.');
   pdf.paragraph('Research findings require your interpretation of genuine participant evidence. Any separately collected observation notes, interview recordings, transcripts and consent records must be preserved separately. Free play and replay sessions must not be presented as additional independent participants.');
-  const files = storyFiles(s, previous);
-  const attachments = Object.fromEntries(Object.entries(files).filter(([name]) => /\.(json|csv|py)$/.test(name)));
+  const files = storyFiles(s, previous, exportedAt);
+  if(s.participant) files['participant-list.txt'] = `- ${s.participant.studentId} ${s.participant.fullName}\n`;
+  const attachments = Object.fromEntries(Object.entries(files).filter(([name]) => /\.(json|csv|py|txt)$/.test(name)));
   attachments['HOW_TO_ANALYSE.txt'] = 'SECOND NATURE - ORIGINAL SESSION DATA\n\nRun: python analyze_story.py session.json\nSeveral JSON paths produce a participant table. Preserve original files and timestamps.\nKeep free play and replays separate from primary study sessions.\nRatings are custom single items, not SUS. Missing data is not zero.\nNo interviews, researcher observations, quotations or findings were invented.\n';
   pdf.heading('Embedded files');
   Object.keys(attachments).sort().forEach(name => pdf.paragraph(name, 9));

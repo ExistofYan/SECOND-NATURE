@@ -106,3 +106,17 @@ body{background:#e5e7e8;color:var(--ink)}
   .feedback-banner .pinch-button { width: 100%; }
 }
 .experience-page .rating-section-progress { font-size: 16px; margin: 6px 0 12px; color: #5c7282; }
+.participant-registration { width: min(100%, 820px); display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; text-align: left; margin: 12px auto; }
+.participant-registration label { display: grid; gap: 6px; font-size: 18px; font-weight: bold; }
+.participant-registration input { width: 100%; box-sizing: border-box; font: inherit; min-height: 48px; padding: 10px; border: 2px solid #527066; border-radius: 6px; background: #fffdf8; }
+.participant-registration .registration-note, .participant-registration > p, .registration-courses, .registration-focus { grid-column: 1 / -1; }
+.participant-registration > p { font-size: 16px; line-height: 1.4; margin: 0; }
+.registration-courses, .registration-focus { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.registration-courses [aria-pressed=true] { outline: 3px solid #527066; background: #e2eddf; }
+.consent-page { overflow-y: auto; justify-content: flex-start; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+.consent-page h1 { font-size: 32px; }
+.consent-page > p { font-size: 18px; line-height: 1.35; }
+.consent-page .consent-box { padding: 12px 20px; }
+.consent-page .consent-box p { font-size: 17px; line-height: 1.35; }
+.consent-page .inline-actions .pinch-button { min-height: 58px; font-size: 20px; }
+@media (max-width: 600px) { .participant-registration { grid-template-columns: 1fr; } }

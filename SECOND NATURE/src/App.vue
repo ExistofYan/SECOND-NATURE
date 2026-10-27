@@ -17,11 +17,21 @@ import {exportStory} from './services/storyExportService';
 import {cameraService} from './services/cameraService';
 import {useDeviceStore} from './stores/deviceStore';
 import type {Session} from './domain/story/types';
+import { participantError } from './domain/story/participant';
 import { APP_VERSION } from './config/interaction';
 const game=useStoryGame(),nav=useGestureNavStore();
 const device=useDeviceStore();
 const video=ref<HTMLVideoElement|null>(null),practiceStep=ref(0),participant=ref(1),collectProbes=ref(false),probeSet=ref<'A'|'B'>('A'),probeIndex=ref(0),sessionPage=ref(0),itemPage=ref(0),downloadStatus=ref('');
 const exporting=ref(false);
+const fullName=ref(''),studentId=ref(''),course=ref<''|'COMP3900'|'COMP6390'>('');
+const nameInput=ref<HTMLInputElement|null>(null),idInput=ref<HTMLInputElement|null>(null);
+const registrationError=computed(()=>participantError({fullName:fullName.value,studentId:studentId.value,course:course.value as 'COMP3900'|'COMP6390'}));
+function startResearch(){
+  if(registrationError.value||!course.value)return;
+  practiceStep.value=0;
+  game.start('research','P'+String(participant.value).padStart(2,'0'),collectProbes.value,probeSet.value,null,{fullName:fullName.value,studentId:studentId.value,course:course.value});
+  fullName.value='';studentId.value='';course.value='';
+}
 const scene=computed(()=>game.session?.modelSnapshot[game.displayedIndex]);
 const visibleChoices=computed(()=>{if(!game.session||!scene.value)return [];const v=game.session.visits.find(v=>v.sceneId===scene.value!.id);return v?scene.value.choices.filter(c=>v.availableChoiceIds.includes(c.id)):availableChoices(game.session,game.displayedIndex);});
 const analysis=computed(()=>game.session?analyze(game.session):null);
@@ -55,8 +65,13 @@ watch(()=>nav.frameId,()=>{
 function practicePick(){practiceStep.value=1;game.event('practice_choice');rearm();}
 function submitProbe(answer:number){const p=probe.value;if(!p)return;const set=p.id[0];game.probe(game.page,set,p.id,String(answer),answer===p.correct);if(probeIndex.value<activeProbes.value.length-1)probeIndex.value++;else {probeIndex.value=0;game.setPage(game.page==='pre'?'story':'ratings');}}
 function submitRating(value:number){if(game.rating(rating.value.key,value)&&ratingQuestions.every(q=>isRatingValue(game.session?.ratings[q.key])))game.setPage('summary');}
-function openResearch(){game.page='consent';}
-function decline(){game.page='cover';}
+function openResearch(){
+  fullName.value='';studentId.value='';course.value='';
+  const used=new Set(game.sessions.map(s=>s.participantCode));
+  participant.value=Array.from({length:99},(_,i)=>i+1).find(i=>!used.has('P'+String(i).padStart(2,'0')) )??99;
+  game.session=null;game.page='registration';game.transition='awaitingRelease';
+}
+function decline(){fullName.value='';studentId.value='';course.value='';game.page='cover';}
 async function exportReport(){
   if(!game.session||exporting.value)return;
   exporting.value=true;downloadStatus.value='Preparing your PDF report...';rearm();
@@ -103,7 +118,16 @@ onBeforeUnmount(()=>{if(lossTimer)clearTimeout(lossTimer);nav.disable();handTrac
 
     <main v-else-if="game.page==='practice'" class="center-page practice-page"><span class="eyebrow">BEFORE YOUR DAY BEGINS</span><h1>A little hand rehearsal.</h1><p>Use either hand. Point with an open hand, then pinch your thumb and index finger to choose.<br>Then open them again. There is no time limit.</p><div class="practice-illustration"><InkIcon name="hand" :size="100"/><span class="practice-dots">·····</span><div class="practice-target">{{practiceStep?'Nicely done!':'Aim here'}}</div></div><template v-if="!practiceStep"><p class="practice-caption">Choose either practice card. Both are just for practice.</p><div class="choices two-choices"><PinchButton variant="secondary" @press="practicePick"><InkIcon name="sun" :size="36"/><b>A sunny morning</b></PinchButton><PinchButton variant="secondary" @press="practicePick"><InkIcon name="moon" :size="36"/><b>A quiet evening</b></PinchButton></div></template><template v-else><p role="status">Choice received. Release your fingers, then make a fresh pinch below.</p><div class="inline-actions"><PinchButton variant="secondary" @press="practiceStep=0">Try again</PinchButton><PinchButton @press="game.practiceDone()">{{game.session?.collectProbes?'Continue':'Begin my day'}} <InkIcon name="arrow"/></PinchButton></div></template><PinchButton variant="quiet" @press="game.exit()">Save and return to the cover</PinchButton></main>
 
-    <main v-else-if="game.page==='consent'" class="consent-page center-page"><span class="eyebrow">RESEARCH PARTICIPATION</span><h1>Your choice to take part.</h1><p>This exploratory class study looks at how students understand waste prevention through a gesture comic.</p><div class="consent-box"><p>The device records choices, timing, pauses and your short responses. It does not save video, photos, hand landmarks or your real name.</p><p>Participation is voluntary. You can pause, end and export a partial session. Your researcher explains how records will be used, stored and withdrawn before you agree.</p></div><div class="study-settings"><div><span class="mini-label">PARTICIPANT CODE</span><div class="code-selector"><PinchButton variant="secondary" @press="participant=Math.max(1,participant-1)">−</PinchButton><strong>P{{String(participant).padStart(2,'0')}}</strong><PinchButton variant="secondary" @press="participant=Math.min(99,participant+1)">+</PinchButton></div></div><PinchButton variant="secondary" @press="collectProbes=!collectProbes">Knowledge checks: {{collectProbes?'ON':'OFF'}}</PinchButton><PinchButton v-if="collectProbes" variant="secondary" @press="probeSet=probeSet==='A'?'B':'A'">Check order: {{probeSet==='A'?'A → B':'B → A'}}</PinchButton></div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Decline and return</PinchButton><PinchButton @press="practiceStep=0;game.start('research','P'+String(participant).padStart(2,'0'),collectProbes,probeSet)">I agree to take part <InkIcon name="arrow"/></PinchButton></div></main>
+    <main v-else-if="game.page==='registration'" class="registration-page center-page"><span class="eyebrow">BEFORE THE STUDY</span><h1>Participant details</h1><div class="participant-registration">
+<p class="registration-note">Researcher setup: type the participant details before the gesture task. Participant: check your details and confirm your current course below.</p>
+<label>Full name in English or pinyin<input ref="nameInput" v-model="fullName" maxlength="100" autocomplete="off" placeholder="Firstname Lastname" /></label>
+<label>ANU student ID<input ref="idInput" v-model="studentId" maxlength="8" autocomplete="off" spellcheck="false" placeholder="u1234567" /></label>
+<div class="registration-focus"><PinchButton variant="quiet" @press="nameInput?.focus()">Edit name</PinchButton><PinchButton variant="quiet" @press="idInput?.focus()">Edit student ID</PinchButton></div>
+<div class="registration-courses" role="group" aria-label="Confirm your current course"><PinchButton v-for="c in (['COMP3900','COMP6390'] as const)" :key="c" :aria-pressed="course===c" variant="secondary" @press="course=c">{{course===c?'Confirmed: ':''}}{{c}}</PinchButton></div>
+<p role="status">{{registrationError || 'Details ready. Check them before agreeing to participate.'}}</p>
+</div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Cancel</PinchButton><PinchButton :disabled="!!registrationError" @press="game.page='consent'">Review consent <InkIcon name="arrow"/></PinchButton></div></main>
+
+    <main v-else-if="game.page==='consent'" class="consent-page center-page"><span class="eyebrow">RESEARCH PARTICIPATION</span><h1>Your choice to take part.</h1><p>This exploratory class study looks at how students understand waste prevention through a gesture comic.</p><div class="consent-box"><p>The device records choices, timing, pauses and your short responses. Research mode also records your name, student ID, course and timestamps for the course participant list and exported report. It does not save camera video, photos or hand landmarks.</p><p>Participation is voluntary. You can pause, end and export a partial session. Records stay in this browser until exported; exports contain your identity. Your researcher explains course submission access, storage, deletion and withdrawal before you agree. Separate permission is needed for interview recording.</p></div><p><b>{{fullName}}</b> / {{studentId}} / {{course}}</p><PinchButton variant="quiet" @press="game.page='registration'">Edit participant details</PinchButton><div class="study-settings"><div><span class="mini-label">PARTICIPANT CODE</span><div class="code-selector"><PinchButton variant="secondary" @press="participant=Math.max(1,participant-1)">−</PinchButton><strong>P{{String(participant).padStart(2,'0')}}</strong><PinchButton variant="secondary" @press="participant=Math.min(99,participant+1)">+</PinchButton></div></div><PinchButton variant="secondary" @press="collectProbes=!collectProbes">Knowledge checks: {{collectProbes?'ON':'OFF'}}</PinchButton><PinchButton v-if="collectProbes" variant="secondary" @press="probeSet=probeSet==='A'?'B':'A'">Check order: {{probeSet==='A'?'A → B':'B → A'}}</PinchButton></div><div class="inline-actions"><PinchButton variant="secondary" @press="decline">Decline and return</PinchButton><PinchButton :disabled="!!registrationError" @press="startResearch">I agree to take part <InkIcon name="arrow"/></PinchButton></div></main>
 
     <main v-else-if="game.page==='pre'||game.page==='post'" class="center-page question-page"><span class="eyebrow">{{game.page==='pre'?'BEFORE':'AFTER'}} THE STORY · {{probeIndex+1}} / {{activeProbes.length}}</span><h1>A different everyday moment.</h1><p class="question-text">{{probe.text}}</p><div class="choices two-choices"><PinchButton v-for="(a,i) in probe.answers" :key="probe.id+i" variant="secondary" @press="submitProbe(i)"><span class="choice-letter">{{i?'B':'A'}}</span><b>{{a}}</b></PinchButton></div><small>No time limit. Answers are recorded without immediate corrections.</small><PinchButton variant="quiet" @press="game.exit()">End and save</PinchButton></main>
 

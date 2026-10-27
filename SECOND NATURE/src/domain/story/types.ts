@@ -11,7 +11,15 @@ export interface Scene { id: string; artId?: string; chapter: number; timeLabel:
 export interface StoryEvent { eventId: string; seq: number; wallTimeISO: string; elapsedMonotonicMs: number; timingSegmentId: string; sceneVisitId: string | null; sceneId: string | null; type: string; payload: Record<string, unknown>; schemaVersion: number }
 export interface Timing { decisionWallMs: number | null; decisionActiveMs: number | null; pausedMs: number | null }
 export interface SceneVisit extends Timing { storyText?: string; visitId: string; sceneId: string; variantId: string; availableChoiceIds: string[]; choicePositions: string[]; readyAt: string | null; submittedAt: string | null; selectedChoiceId: string | null; animationMs: number; assetStatus: 'ready' | 'degraded'; timingInterrupted: boolean; timingMissing?: boolean }
+export interface ParticipantIdentity {
+  fullName: string;
+  studentId: string;
+  course: 'COMP3900' | 'COMP6390';
+}
 export interface Session {
+  participant?: ParticipantIdentity;
+  timeZone?: string;
+  consentVersion?: string;
   sessionId: string; schemaVersion: number; modelVersion: string; appVersion: string; kind: 'play' | 'research'; participantCode: string | null;
   consentAt: string | null; startedAt: string; endedAt: string | null; status: 'active' | 'interrupted' | 'completed' | 'aborted';
   parentSessionId: string | null; modelSnapshot: Scene[]; initialInventory: Item[]; items: Item[]; events: StoryEvent[];
