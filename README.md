@@ -14,13 +14,13 @@ The story follows breakfast, the journey to school, classes, shopping and an eve
 
 ## How to Play
 
-1. Open **[Play Online](https://second-nature-one-day-less-waste.netlify.app/)** in desktop Chrome or Edge.
-2. Allow camera access and complete the practice.
+1. Open **[Play Online](https://yantongsecondnature.netlify.app/)** in desktop Chrome or Edge.
+2. Allow camera access. Choose **Start a new day**, enter your name and student ID, confirm your course and consent, then complete the practice. **Free play (no participant details)** is a separate option for informal trials.
 3. **Point** at an option with either open hand.
 4. **Pinch** your thumb and index finger to choose.
 5. **Release** before making your next choice.
 6. Read the black caption panel, then **point and pinch Continue** when ready.
-7. After the final scene, answer 16 ratings about waste prevention and interface experience (eight each) by **pointing and pinching a score from 1 to 5**. Each answer is saved immediately and included in your PDF report. You can save and finish the questions later.
+7. After the final scene, answer the first 15 ratings by **pointing and pinching a score from 1 to 5**. Review the four result pages, choose **Answer final rating**, and rate the clarity of those results before exporting your PDF. Each answer is saved immediately; incomplete exports are labelled.
 
 Already finished an earlier version? Open **Saved days → View / export** to complete any missing ratings. A **Rate my experience** button is also available on results pages while answers are missing.
 
